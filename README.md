@@ -84,6 +84,10 @@ deploying it in a production environment.
 
 - [ ] **Publish package**
 
+### FEATURE
+
+- [ ] **Custom Regex and subpath support**
+
 ---
 
 ### Notes

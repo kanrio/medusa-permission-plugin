@@ -1,4 +1,4 @@
-# Medusajs Permission Plugin
+# Medusajs Permission Plugin(experimental)
 
 Manage user permissions seamlessly on your Medusa commerce application.
 
@@ -10,6 +10,11 @@ Manage user permissions seamlessly on your Medusa commerce application.
 - Assign predefined permission policies to policy clusters.
 - Intuitive dashboard to view and manage user permissions(WIP).
 - Ready-integration with Medusa's Admin Dashboard.
+
+---
+<p align="center">
+  <img src="docs/view.gif" width="388" height="315" alt="">
+</p>
 
 ---
 
@@ -26,7 +31,6 @@ Manage user permissions seamlessly on your Medusa commerce application.
   ```bash
   npm install TODO: after the publish
   ```
-
 
 2\. In `medusa-config.js` add the following at the end of the `plugins` array:
 
@@ -47,23 +51,29 @@ Manage user permissions seamlessly on your Medusa commerce application.
 
 ## How Does It Work
 
-- The plugin integrates by attaching itself to the default "admin" route middlewares. By default, it excludes the following routes: "auth", "users", "invites", and "analytics-configs". During runtime, it fetches all policies and policy clusters into a hashmap, then examines every incoming request from the end user.
+- The plugin integrates by attaching itself to the default "admin" route middlewares. By default, it excludes the
+  following routes: "auth", "users", "invites", and "analytics-configs". During runtime, it fetches all policies and
+  policy clusters into a hashmap, then examines every incoming request from the end user.
 
 **Caution:** This plugin requires to run migrations.
 
-**Note:** This plugin is currently in an experimental phase. Please exercise caution and ensure adequate testing before deploying it in a production environment.
+**Note:** This plugin is currently in an experimental phase. Please exercise caution and ensure adequate testing before
+deploying it in a production environment.
 
 ---
 
 ## ROADMAP
 
 ---
+
 ### UI
+
 - [ ] **Edit Policy Page**
 - [ ] **Edit Policy Cluster Page**
 - [ ] **Dropdown Menu Items**
 
 ### CODE
+
 - [ ] **Use zod on creating policy page**
 - [ ] **Refactor validation**
 - [ ] **Medusa v1.17.2 new middleware support test and migration**
@@ -71,5 +81,14 @@ Manage user permissions seamlessly on your Medusa commerce application.
 - [ ] **Examine users and invitations routes**
 
 ### PACKAGE
+
 - [ ] **Publish package**
+
 ---
+
+### Notes
+
+Please note that this plugin's UI components are a bit rough around the edges, as they have been "hacked through" from
+the original MIT source code of the MedusaJS admin project. I am not a UI engineer, so I focused on the backend
+functionality and logic of the plugin. Contributions to improve the UI or any other aspect of the plugin are very much
+welcome!

@@ -1,29 +1,28 @@
 import { Heading, Input, Text, Textarea, clx } from "@medusajs/ui"
-
-import { Form } from "../../../../shared/form"
 import { NestedForm } from "../../../../shared/form/nested-form"
-import { ClusterDetailsSchema } from "./types"
+import { PolicyDetailsSchema } from "./types"
+import { Form } from "../../../../shared/form"
 
-interface ClusterDetailsFormProp {
-  form: NestedForm<ClusterDetailsSchema>
+interface PolicyDetailsFormProp {
+  form: NestedForm<PolicyDetailsSchema>
   layout: "drawer" | "focus"
 }
 
-const ClusterDetailsForm = ({ form, layout }: ClusterDetailsFormProp) => {
+const PolicyDetailsForm = ({ form, layout }: PolicyDetailsFormProp) => {
   return (
     <div className="flex w-full flex-col gap-y-12">
-      <ClusterDetailsGeneral form={form} layout={layout} />
+      <PolicyDetailsGeneral form={form} layout={layout} />
     </div>
   )
 }
 
-const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
+const PolicyDetailsGeneral = ({ form, layout }: PolicyDetailsFormProp) => {
   return (
     <div className="flex flex-col gap-y-6">
       <div>
         <Heading level="h2">{"General"}</Heading>
         <Text className="text-ui-fg-subtle">
-          {"Choose a cluster name and give a description for new cluster."}
+          {"Create a policy name and give a description for new policy."}
         </Text>
       </div>
       <div
@@ -40,7 +39,7 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
               <Form.Item>
                 <Form.Label>{"Name"}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={"Agents"} />
+                  <Input {...field} placeholder={"Get Product"} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -59,7 +58,7 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
                 <Textarea
                   {...field}
                   placeholder={
-                    "This agent cluster can't change products, and can only list orders."
+                    "This is our custom get product policy, if this policy attached to the cluster, that policy will have a permission to fetch all products"
                   }
                 />
               </Form.Control>
@@ -72,4 +71,4 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
   )
 }
 
-export { ClusterDetailsForm }
+export { PolicyDetailsForm }

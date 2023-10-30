@@ -1,29 +1,33 @@
-import { Heading, Input, Text, Textarea, clx } from "@medusajs/ui"
-
-import { Form } from "../../../../shared/form"
+import { Heading, Input, Text, clx } from "@medusajs/ui"
 import { NestedForm } from "../../../../shared/form/nested-form"
-import { ClusterDetailsSchema } from "./types"
+import { Form } from "../../../../shared/form"
+import { PolicySettingsSchema } from "./types"
 
-interface ClusterDetailsFormProp {
-  form: NestedForm<ClusterDetailsSchema>
+interface PolicySettingsFormProp {
+  form: NestedForm<PolicySettingsSchema>
   layout: "drawer" | "focus"
 }
 
-const ClusterDetailsForm = ({ form, layout }: ClusterDetailsFormProp) => {
+const PolicySettingsForm = ({ form, layout }: PolicySettingsFormProp) => {
   return (
     <div className="flex w-full flex-col gap-y-12">
-      <ClusterDetailsGeneral form={form} layout={layout} />
+      <PolicySettingsFormComponent form={form} layout={layout} />
     </div>
   )
 }
 
-const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
+const PolicySettingsFormComponent = ({
+  form,
+  layout,
+}: PolicySettingsFormProp) => {
   return (
     <div className="flex flex-col gap-y-6">
       <div>
-        <Heading level="h2">{"General"}</Heading>
+        <Heading level="h2">{"Settings"}</Heading>
         <Text className="text-ui-fg-subtle">
-          {"Choose a cluster name and give a description for new cluster."}
+          {
+            "Give a base router and method for this policy, the permission middleware will listen this router"
+          }
         </Text>
       </div>
       <div
@@ -34,13 +38,13 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
       >
         <Form.Field
           control={form.control}
-          name={form.path("general.name")}
+          name={form.path("settings.base_router")}
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label>{"Name"}</Form.Label>
+                <Form.Label>{"Base Router"}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={"Agents"} />
+                  <Input {...field} placeholder={"products"} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -48,20 +52,16 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
           }}
         />
       </div>
+
       <Form.Field
         control={form.control}
-        name={form.path("general.description")}
+        name={form.path("settings.method")}
         render={({ field }) => {
           return (
             <Form.Item>
-              <Form.Label>{"Description"}</Form.Label>
+              <Form.Label>{"Method"}</Form.Label>
               <Form.Control>
-                <Textarea
-                  {...field}
-                  placeholder={
-                    "This agent cluster can't change products, and can only list orders."
-                  }
-                />
+                <Input {...field} placeholder={"GET"} />
               </Form.Control>
               <Form.ErrorMessage />
             </Form.Item>
@@ -72,4 +72,4 @@ const ClusterDetailsGeneral = ({ form, layout }: ClusterDetailsFormProp) => {
   )
 }
 
-export { ClusterDetailsForm }
+export { PolicySettingsForm }

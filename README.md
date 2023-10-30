@@ -12,6 +12,7 @@ Manage user permissions seamlessly on your Medusa commerce application.
 - Ready-integration with Medusa's Admin Dashboard.
 
 ---
+
 <p align="center">
   <img src="docs/view.gif" width="388" height="315" alt="">
 </p>
@@ -28,24 +29,24 @@ Manage user permissions seamlessly on your Medusa commerce application.
 
 1\. Run the following command in the directory of the Medusa backend:
 
-  ```bash
-  npm install TODO: after the publish
-  ```
+```bash
+npm install TODO: after the publish
+```
 
 2\. In `medusa-config.js` add the following at the end of the `plugins` array:
 
-  ```js
-  const plugins = [
+```js
+const plugins = [
   // ...
   {
     resolve: `medusa-permission-plugin`,
     options: {
       enableUI: true,
-      excludeArray: ["<you_can_exclude_middleware_using_this_array>"]
-    }
-  }
-];
-  ```
+      excludeArray: ["<you_can_exclude_middleware_using_this_array>"],
+    },
+  },
+]
+```
 
 ---
 
@@ -74,11 +75,14 @@ deploying it in a production environment.
 
 ### CODE
 
-- [ ] **Use zod on creating policy page**
-- [ ] **Refactor validation**
+- [x] **Use zod on creating policy page**
+- [x] **Refactor validation**
+- [x] **Guard policy routes, add migraiton policy of policies**
+- [ ] **Notifications**
 - [ ] **Medusa v1.17.2 new middleware support test and migration**
 - [ ] **Testing Suite**
 - [ ] **Examine users and invitations routes**
+- [ ] **Admin users pagination, custom api for users, reveal policy cluster in that context**
 
 ### PACKAGE
 

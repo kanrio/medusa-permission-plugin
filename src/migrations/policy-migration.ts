@@ -943,6 +943,54 @@ export class MyMigration1692953518124 implements MigrationInterface {
         method: "DELETE",
         base_router: "product-categories",
       },
+      {
+        id: "policy_08HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "Create/Update Policy",
+        description:
+          "If this policy attached to the cluster the cluster can create/update policy",
+        method: "POST",
+        base_router: "policy",
+      },
+      {
+        id: "policy_09HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "List Policy",
+        description:
+          "If this policy attached to the cluster the cluster can list policies",
+        method: "GET",
+        base_router: "policy",
+      },
+      {
+        id: "policy_19HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "List Policy",
+        description:
+          "If this policy attached to the cluster the cluster can list policies",
+        method: "DELETE",
+        base_router: "policy",
+      },
+      {
+        id: "policy_29HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "List Policy Cluster",
+        description:
+          "If this policy attached to the cluster the cluster can list policy clusters",
+        method: "GET",
+        base_router: "policy-cluster",
+      },
+      {
+        id: "policy_39HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "Create/Update Policy Cluster",
+        description:
+          "If this policy attached to the cluster the cluster can create/update policy clusters",
+        method: "POST",
+        base_router: "policy-cluster",
+      },
+      {
+        id: "policy_49HDMP7TBDEFD32KKQBB6ZD1CZ",
+        name: "DELETE Policy Cluster",
+        description:
+          "If this policy attached to the cluster the cluster can delete policy clusters",
+        method: "DELETE",
+        base_router: "policy-cluster",
+      },
     ]
 
     for (let policy of policies) {

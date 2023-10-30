@@ -1,58 +1,45 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  Button,
-  FocusModal,
-  ProgressTabs,
-  Text,
-  usePrompt,
-  type ProgressStatus,
-} from "@medusajs/ui"
-import * as React from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
-  ClusterPolicyForm,
-  clusterPolicySchema,
-} from "../forms/cluster-policy-form"
+  ProgressStatus,
+  usePrompt,
+  FocusModal,
+  ProgressTabs,
+  Button,
+} from "@medusajs/ui"
+import { policyDetailsSchema } from "../forms/policy-details-form"
+import * as React from "react"
+import { useForm } from "react-hook-form"
+import { mutateAdminPolicy } from "../../../hooks/policy"
 import { Form } from "../../../shared/form"
 import { nestedForm } from "../../../shared/form/nested-form"
-import { mutateClusterPolicy } from "../../../hooks/cluster"
+import { PolicyDetailsForm } from "../forms/policy-details-form"
 import {
-  clusterDetailsSchema,
-  ClusterDetailsForm,
-} from "../forms/cluster-details-form"
-import {
-  ClusterUsersForm,
-  clusterUsersSchema,
-} from "../forms/cluster-users-form"
-import { ExclamationCircle, Spinner } from "@medusajs/icons"
+  PolicySettingsForm,
+  policySettingsSchema,
+} from "../forms/policy-settings-form"
 
 enum Tab {
   DETAILS = "details",
-  POLICIES = "products",
-  USERS = "prices",
+  SETTINGS = "settings",
 }
 
-const clusterNewSchema = z.object({
-  details: clusterDetailsSchema,
-  products: clusterPolicySchema,
-  users: clusterUsersSchema,
+const policyNewSchema = z.object({
+  details: policyDetailsSchema,
+  settings: policySettingsSchema,
 })
 
-type ClusterNewSchema = z.infer<typeof clusterNewSchema>
+type PolicyNewSchema = z.infer<typeof policyNewSchema>
 
 type StepStatus = {
   [key in Tab]: ProgressStatus
 }
 
-export const CreateNewClusterModal = ({ open, setOpen }) => {
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([])
-
+export const CreateNewPolicyModal = ({ open, setOpen }) => {
   const [tab, setTab] = React.useState<Tab>(Tab.DETAILS)
   const [status, setStatus] = React.useState<StepStatus>({
     [Tab.DETAILS]: "not-started",
-    [Tab.POLICIES]: "not-started",
-    [Tab.USERS]: "not-started",
+    [Tab.SETTINGS]: "not-started",
   })
 
   const promptTitle = "Are you sure?"
@@ -61,8 +48,8 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
 
   const prompt = usePrompt()
 
-  const form = useForm<ClusterNewSchema>({
-    resolver: zodResolver(clusterNewSchema),
+  const form = useForm<PolicyNewSchema>({
+    resolver: zodResolver(policyNewSchema),
     defaultValues: {
       details: {
         general: {
@@ -70,11 +57,11 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
           description: "",
         },
       },
-      products: {
-        ids: [],
-      },
-      users: {
-        ids: [],
+      settings: {
+        settings: {
+          base_router: "",
+          method: "GET",
+        },
       },
     },
   })
@@ -88,16 +75,14 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
     formState: { isDirty },
   } = form
 
-  const { mutate, isLoading, isError } = mutateClusterPolicy()
+  const { mutate, isLoading, isError } = mutateAdminPolicy()
 
   const onCloseModal = React.useCallback(() => {
     setOpen(false)
     setTab(Tab.DETAILS)
-    setSelectedIds([])
     setStatus({
       [Tab.DETAILS]: "not-started",
-      [Tab.POLICIES]: "not-started",
-      [Tab.USERS]: "not-started",
+      [Tab.SETTINGS]: "not-started",
     })
     reset()
   }, [reset])
@@ -125,19 +110,6 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
 
   const onSubmit = React.useCallback(async () => {
     await handleSubmit(async (data) => {
-      const productIds = data.products.ids
-      const payloadPolicies = []
-      productIds.forEach((payloadId) => {
-        payloadPolicies.push({ id: payloadId })
-      })
-
-      const userIds = data.users.ids
-
-      const payloadUsers = []
-      userIds.forEach((payloadId) => {
-        payloadUsers.push(payloadId)
-      })
-
       const res = await prompt({
         title: "Are you sure?",
         description:
@@ -150,10 +122,10 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
 
       mutate(
         {
-          name: data.details.general.name,
+          name: data.details.general.name.trim(),
           description: data.details.general.description,
-          policy: payloadPolicies,
-          user: payloadUsers,
+          method: data.settings.settings.method.trim(),
+          base_router: data.settings.settings.base_router,
         },
         {
           onSuccess: () => {
@@ -181,49 +153,27 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
       return
     }
 
-    setTab(Tab.POLICIES)
+    setTab(Tab.SETTINGS)
     setStatus((prev) => ({
       ...prev,
       [Tab.DETAILS]: "completed",
     }))
   }, [trigger])
 
-  const onValidateProducts = React.useCallback(async () => {
-    const result = await trigger("products")
-
-    if (!result) {
-      setStatus((prev) => ({
-        ...prev,
-        [Tab.POLICIES]: "in-progress",
-      }))
-
-      return
-    }
-    getValues("products.ids")
-    setTab(Tab.USERS)
-    setStatus((prev) => ({
-      ...prev,
-      [Tab.POLICIES]: "completed",
-    }))
-  }, [trigger, getValues])
-
   const onNext = React.useCallback(async () => {
     switch (tab) {
       case Tab.DETAILS:
         await onValidateDetails()
         break
-      case Tab.POLICIES:
-        await onValidateProducts()
-        break
-      case Tab.USERS:
+      case Tab.SETTINGS:
         await onSubmit()
         break
     }
-  }, [onValidateDetails, onValidateProducts, onSubmit, tab])
+  }, [onSubmit, tab])
 
   const nextButtonText = React.useMemo(() => {
     switch (tab) {
-      case Tab.USERS:
+      case Tab.SETTINGS:
         return "Save"
       default:
         return "Continue"
@@ -235,11 +185,8 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
       case Tab.DETAILS:
         await onModalStateChange(false)
         break
-      case Tab.POLICIES:
+      case Tab.SETTINGS:
         setTab(Tab.DETAILS)
-        break
-      case Tab.USERS:
-        setTab(Tab.POLICIES)
         break
     }
   }, [onModalStateChange, tab])
@@ -268,30 +215,17 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
                 status={status[Tab.DETAILS]}
               >
                 <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {"Create Cluster"}
+                  {"Policy Details"}
                 </span>
               </ProgressTabs.Trigger>
               <ProgressTabs.Trigger
-                value={Tab.POLICIES}
+                value={Tab.SETTINGS}
                 disabled={status[Tab.DETAILS] !== "completed"}
                 className="w-full min-w-0  max-w-[200px]"
-                status={status[Tab.POLICIES]}
+                status={status[Tab.SETTINGS]}
               >
                 <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {"Attach Policy"}
-                </span>
-              </ProgressTabs.Trigger>
-              <ProgressTabs.Trigger
-                value={Tab.USERS}
-                disabled={
-                  status[Tab.DETAILS] !== "completed" &&
-                  status[Tab.POLICIES] !== "completed"
-                }
-                className="w-full min-w-0 max-w-[200px]"
-                status={status[Tab.USERS]}
-              >
-                <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {"Attach User"}
+                  {"Policy Settings"}
                 </span>
               </ProgressTabs.Trigger>
             </ProgressTabs.List>
@@ -312,43 +246,23 @@ export const CreateNewClusterModal = ({ open, setOpen }) => {
                   className="h-full w-full max-w-[720px]"
                 >
                   <div className="px-8 py-12">
-                    <ClusterDetailsForm
+                    <PolicyDetailsForm
                       form={nestedForm(form, "details")}
                       layout="focus"
                     />
                   </div>
                 </ProgressTabs.Content>
                 <ProgressTabs.Content
-                  value={Tab.POLICIES}
-                  className="h-full w-full"
+                  value={Tab.SETTINGS}
+                  className="h-full w-full max-w-[720px]"
                 >
-                  <ClusterPolicyForm form={nestedForm(form, "products")} />
+                  <div className="px-8 py-12">
+                    <PolicySettingsForm
+                      form={nestedForm(form, "settings")}
+                      layout="focus"
+                    />
+                  </div>
                 </ProgressTabs.Content>
-                {isLoading ? (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <Spinner className="text-ui-fg-subtle animate-spin" />
-                  </div>
-                ) : isError ? (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <div className="text-ui-fg-subtle flex items-center gap-x-2">
-                      <ExclamationCircle />
-                      <Text>
-                        {
-                          "An error occurred while preparing the form. Reload the page and try again. If the issue persists, try again later."
-                        }
-                      </Text>
-                    </div>
-                  </div>
-                ) : (
-                  <React.Fragment>
-                    <ProgressTabs.Content
-                      value={Tab.USERS}
-                      className="h-full w-full"
-                    >
-                      <ClusterUsersForm form={nestedForm(form, "users")} />
-                    </ProgressTabs.Content>
-                  </React.Fragment>
-                )}
               </Form>
             </FocusModal.Body>
           )}

@@ -19,7 +19,7 @@
     "resolveJsonModule": true,
     "checkJs": false,
     "noEmit": false,
-    "strict": false,
+    "strict": false
   },
   "include": ["src/"],
   "exclude": [

@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator"
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  IsIn,
+} from "class-validator"
 import { Request, Response } from "express"
 import { EntityManager } from "typeorm"
 import PolicyService from "../../../../services/policy"
@@ -23,8 +29,6 @@ export default async (req: Request, res: Response) => {
   res.status(200).json({ policy })
 }
 
-// TODO: Implement the validator
-
 export class AdminPostPolicyReq {
   @IsString()
   @IsOptional()
@@ -38,10 +42,14 @@ export class AdminPostPolicyReq {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
+  @IsIn(["GET", "POST", "DELETE", "PUT", "PATCH"])
   method?: string
 
   @IsString()
-  @IsNotEmpty()
   @IsOptional()
+  @IsNotEmpty({ message: "Base router is required" })
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message: "Base router should not include special characters",
+  })
   base_router?: string
 }

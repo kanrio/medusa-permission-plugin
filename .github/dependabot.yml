@@ -9,11 +9,11 @@ updates:
     groups:
       medusa:
         patterns:
-        - "@medusajs*"
-        - "medusa*"
+          - "@medusajs*"
+          - "medusa*"
         update-types:
-        - "minor"
-        - "patch"
+          - "minor"
+          - "patch"
     ignore:
       - dependency-name: "@medusajs*"
         update-types: ["version-update:semver-major"]

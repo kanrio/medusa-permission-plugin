@@ -1,28 +1,24 @@
 import { Route, Routes } from "react-router-dom"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import BodyCard from "../../../shared/body-card"
 import TableViewHeader from "../../../shared/custom-table/table-view-header"
 import PlusIcon from "../../../shared/icons/plus-icon"
 import PoliciesTable from "../policy-table"
-import {
-  CreatePolicyModalProvider,
-  CreatePolicyModal,
-  useCreatePolicyModal,
-} from "../create-new-policy-modal"
 import { SettingProps } from "@medusajs/admin"
 import { useNavigate } from "react-router-dom"
+import { CreateNewPolicyModal } from "../create-policy-modal/page"
 
 const PolicyIndex = ({ notify }: SettingProps) => {
   const navigate = useNavigate()
 
   const view = "policy"
-  const { showNewPolicy, setShowNewPolicy } = useCreatePolicyModal()
+  const [open, setOpen] = useState(false)
 
   const actions = useMemo(() => {
     return [
       {
         label: "Create Policy",
-        onClick: () => setShowNewPolicy(true),
+        onClick: () => setOpen(true),
         icon: <PlusIcon size={20} />,
       },
     ]
@@ -46,22 +42,22 @@ const PolicyIndex = ({ notify }: SettingProps) => {
           actionables={actions}
           className="h-fit"
         >
+          <div className="flex items-center gap-x-2">
+            <CreateNewPolicyModal open={open} setOpen={setOpen} />
+          </div>
           <PoliciesTable />
         </BodyCard>
       </div>
       <div className="h-xlarge w-full" />
-      <CreatePolicyModal notify={notify} />
     </div>
   )
 }
 
 const Policy = ({ notify }: SettingProps) => {
   return (
-    <CreatePolicyModalProvider>
-      <Routes>
-        <Route index element={<PolicyIndex notify={notify} />} />
-      </Routes>
-    </CreatePolicyModalProvider>
+    <Routes>
+      <Route index element={<PolicyIndex notify={notify} />} />
+    </Routes>
   )
 }
 

@@ -14,8 +14,8 @@ export default function (rootDirectory: string) {
   const permissionRouter = getAdminRouter(adminCors)
   const pluginExcludeRouters = parseOptions(config)
   const defaultRouters = [
-    permissionRouter,
     createPermissionMiddleware(adminCors, pluginExcludeRouters),
+    permissionRouter,
   ]
 
   return [...defaultRouters]

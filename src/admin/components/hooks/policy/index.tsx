@@ -52,13 +52,17 @@ export function useAdminPolicy(queryObject: any) {
 
 export function mutateAdminPolicy() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { mutate, isLoading } = useAdminCustomPost<
-    AdminPolicyReq,
-    AdminPolicyRes
-  >(`/policy`, ["admin-policy-post"])
+  const { mutate, isLoading, isError, isSuccess, isIdle, isPaused } =
+    useAdminCustomPost<AdminPolicyReq, AdminPolicyRes>(`/policy`, [
+      "admin-policy-post",
+    ])
 
   return {
     mutate,
     isLoading,
+    isError,
+    isSuccess,
+    isIdle,
+    isPaused,
   }
 }

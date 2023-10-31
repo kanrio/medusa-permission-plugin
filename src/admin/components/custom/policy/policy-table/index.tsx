@@ -6,6 +6,8 @@ import { usePolicyFilters } from "./use-policy-filters"
 import Table from "../../../shared/custom-table"
 import { useAdminPolicy } from "../../../hooks/policy"
 import { usePolicyColumn } from "./use-policy-columns"
+import usePolicyActions from "../use-policy-actions"
+import policy from "../../../hooks/policy/"
 
 const DEFAULT_PAGE_SIZE = 15
 
@@ -93,6 +95,7 @@ const PolicyTable = () => {
     }
   }
 
+  const { getActions } = usePolicyActions(policy)
   return (
     <>
       <TableContainer
@@ -142,21 +145,34 @@ const PolicyTable = () => {
           <Table.Body {...getTableBodyProps()}>
             {rows.map((row) => {
               prepareRow(row)
+
               return (
                 // eslint-disable-next-line react/jsx-key
-                <Table.Row color={"inherit"} {...row.getRowProps()}>
-                  {row.cells.map((cell, index) => {
-                    return (
-                      <Fragment key={index}>{cell.render("Cell")}</Fragment>
-                    )
-                  })}
-                </Table.Row>
+                <PolicyRow row={row} {...row.getRowProps()} />
               )
             })}
           </Table.Body>
         </Table>
       </TableContainer>
     </>
+  )
+}
+
+const PolicyRow = ({ row, ...rest }) => {
+  const policy = row.original
+  const { getActions } = usePolicyActions(policy)
+
+  return (
+    <Table.Row color={"inherit"} actions={getActions()} {...rest}>
+      {row.cells.map((cell, index) => {
+        return (
+          // eslint-disable-next-line react/jsx-key
+          <Table.Cell {...cell.getCellProps()}>
+            {cell.render("Cell", { index })}
+          </Table.Cell>
+        )
+      })}
+    </Table.Row>
   )
 }
 

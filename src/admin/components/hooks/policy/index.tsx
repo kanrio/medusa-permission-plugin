@@ -1,4 +1,8 @@
-import { useAdminCustomQuery, useAdminCustomPost } from "medusa-react"
+import {
+  useAdminCustomQuery,
+  useAdminCustomPost,
+  useAdminCustomDelete,
+} from "medusa-react"
 
 export type Policy = {
   name: string
@@ -33,6 +37,12 @@ export type AdminPolicyReq = {
   base_router: string
 }
 
+export type AdminPolicyDeleteReq = {
+  id: string
+  object: string
+  deleted: boolean
+}
+
 type AdminPolicyQueryType = AdminPolicyQuery
 type AdminPolicyResType = AdminListPolicyRes
 
@@ -51,8 +61,8 @@ export function useAdminPolicy(queryObject: any) {
 }
 
 export function mutateAdminPolicy() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { mutate, isLoading, isError, isSuccess, isIdle, isPaused } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAdminCustomPost<AdminPolicyReq, AdminPolicyRes>(`/policy`, [
       "admin-policy-post",
     ])
@@ -64,5 +74,18 @@ export function mutateAdminPolicy() {
     isSuccess,
     isIdle,
     isPaused,
+  }
+}
+
+export function useAdminPolicyDelete(id: string) {
+  const { mutate, isLoading, isError } =
+    useAdminCustomDelete<AdminPolicyDeleteReq>(`/policy/${id}`, [
+      "deleted-policy",
+    ])
+
+  return {
+    mutate,
+    isLoading,
+    isError,
   }
 }

@@ -83,11 +83,11 @@ const useClusterUsersFormColumn = () => {
         },
       }),
       columnHelper.accessor("first_name", {
-        header: () => "First name",
+        header: () => "First Name",
         cell: (info) => info.getValue() ?? "-",
       }),
       columnHelper.accessor("last_name", {
-        header: () => "Last name",
+        header: () => "Last Name",
         cell: (info) => info.getValue() ?? "-",
       }),
       columnHelper.accessor("role", {

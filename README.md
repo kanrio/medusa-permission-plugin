@@ -78,11 +78,11 @@ deploying it in a production environment.
 - [x] **Use zod on creating policy page**
 - [x] **Refactor validation**
 - [x] **Guard policy routes, add migraiton policy of policies**
+- [x] **Admin users pagination, custom api for users, reveal policy cluster in that context**
 - [ ] **Notifications**
 - [ ] **Medusa v1.17.2 new middleware support test and migration**
 - [ ] **Testing Suite**
 - [ ] **Examine users and invitations routes**
-- [ ] **Admin users pagination, custom api for users, reveal policy cluster in that context**
 
 ### PACKAGE
 
@@ -91,6 +91,11 @@ deploying it in a production environment.
 ### FEATURE
 
 - [ ] **Custom Regex and subpath support**
+
+### BUG
+
+- [x] **If query key is coming as ="" response is not coming**
+- [ ] **Search re-render every keystroke**
 
 ---
 

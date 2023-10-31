@@ -1,6 +1,5 @@
 import { ExclamationCircle, Spinner } from "@medusajs/icons"
-import type { User } from "@medusajs/medusa"
-import { Checkbox, Heading, Table, Text, clx } from "@medusajs/ui"
+import { Checkbox, Heading, Table, Text, clx, Input } from "@medusajs/ui"
 import {
   createColumnHelper,
   flexRender,
@@ -15,7 +14,12 @@ import * as React from "react"
 import { ClusterUsersSchema } from "./types"
 import { NestedForm } from "../../../../shared/form/nested-form"
 import { Form } from "../../../../shared/form"
-import { useAdminUsers } from "medusa-react"
+import { useDebounce } from "../../../../hooks/use-debounce"
+import { useAdminUserList, User } from "../../../../hooks/user-list"
+import {
+  PolicyFilter,
+  PolicyFilterMenu,
+} from "../../../policy/policy-filter-menu"
 
 interface ClusterPolicyUsersFormProp {
   form: NestedForm<ClusterUsersSchema>
@@ -90,6 +94,10 @@ const useClusterUsersFormColumn = () => {
         header: () => "Role",
         cell: (info) => info.getValue() ?? "-",
       }),
+      columnHelper.accessor("policy_cluster.name", {
+        header: () => "Policy Cluster",
+        cell: (info) => info.getValue() ?? "-",
+      }),
     ],
     []
   )
@@ -133,13 +141,35 @@ const ClusterUsersForm = ({ form, userIds }: ClusterPolicyUsersFormProp) => {
     pageSize: PAGE_SIZE,
   })
 
-  const { users, isLoading } = useAdminUsers()
+  const offset = React.useMemo(
+    () => pagination.pageIndex * pagination.pageSize,
+    [pagination.pageIndex, pagination.pageSize]
+  )
+
+  const [filters, setFilters] = React.useState<PolicyFilter>({
+    created_at: undefined,
+    updated_at: undefined,
+  })
+
+  const [query, setQuery] = React.useState<string>("")
+  const debouncedQuery = useDebounce(query, 500)
+
+  const { data, count, isLoading } = useAdminUserList({
+    limit: PAGE_SIZE,
+    offset,
+    q: debouncedQuery,
+    ...filters,
+  })
+
+  const pageCount = React.useMemo(() => {
+    return count ? Math.ceil(count / PAGE_SIZE) : 0
+  }, [count])
 
   const { columns } = useClusterUsersFormColumn()
 
   const table = useReactTable({
     columns,
-    data: (users as User[] | undefined) ?? [],
+    data: (data?.user as User[] | undefined) ?? [],
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => row.id,
@@ -150,6 +180,7 @@ const ClusterUsersForm = ({ form, userIds }: ClusterPolicyUsersFormProp) => {
     meta: {
       userIds: userIds ?? [],
     },
+    pageCount,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     manualPagination: true,
@@ -176,7 +207,7 @@ const ClusterUsersForm = ({ form, userIds }: ClusterPolicyUsersFormProp) => {
     )
   }
 
-  if (!users) {
+  if (!data.user) {
     return (
       <div className="flex h-full w-full items-center justify-center gap-x-2">
         <ExclamationCircle />
@@ -203,6 +234,25 @@ const ClusterUsersForm = ({ form, userIds }: ClusterPolicyUsersFormProp) => {
               }}
             />
           )}
+        </div>
+        <div className={clx("flex items-center gap-x-2")}>
+          <PolicyFilterMenu
+            onClearFilters={() =>
+              setFilters({
+                created_at: undefined,
+                updated_at: undefined,
+              })
+            }
+            onFilterChange={setFilters}
+            value={filters}
+          />
+          <Input
+            type="search"
+            placeholder={"Search" ?? undefined}
+            size="small"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
       </div>
       <div className="border-ui-border-base relative h-full flex-1 overflow-y-auto border-b">

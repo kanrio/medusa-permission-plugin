@@ -961,9 +961,9 @@ export class MyMigration1692953518124 implements MigrationInterface {
       },
       {
         id: "policy_19HDMP7TBDEFD32KKQBB6ZD1CZ",
-        name: "List Policy",
+        name: "Delete Policy",
         description:
-          "If this policy attached to the cluster the cluster can list policies",
+          "If this policy attached to the cluster the cluster can delete policies",
         method: "DELETE",
         base_router: "policy",
       },

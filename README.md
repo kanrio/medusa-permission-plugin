@@ -11,19 +11,13 @@ Manage user permissions seamlessly on your Medusa commerce application.
 - Intuitive dashboard to view and manage user permissions(WIP).
 - Ready-integration with Medusa's Admin Dashboard.
 
----
-
 <p align="center">
   <img src="docs/view.gif" width="388" height="315" alt="">
 </p>
 
----
-
 ## Prerequisites
 
 - [Medusa backend](https://docs.medusajs.com/development/backend/install)
-
----
 
 ## How to Install
 
@@ -48,8 +42,6 @@ const plugins = [
 ]
 ```
 
----
-
 ## How Does It Work
 
 - The plugin integrates by attaching itself to the default "admin" route middlewares. By default, it excludes the
@@ -61,11 +53,7 @@ const plugins = [
 **Note:** This plugin is currently in an experimental phase. Please exercise caution and ensure adequate testing before
 deploying it in a production environment.
 
----
-
 ## ROADMAP
-
----
 
 ### UI
 
@@ -96,8 +84,6 @@ deploying it in a production environment.
 
 - [x] **If query key is coming as ="" response is not coming**
 - [ ] **Search re-render every keystroke**
-
----
 
 ### Notes
 

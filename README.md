@@ -59,7 +59,8 @@ deploying it in a production environment.
 
 - [ ] **Edit Policy Page**
 - [ ] **Edit Policy Cluster Page**
-- [ ] **Dropdown Menu Items**
+- [x] **Dropdown Menu Items**
+  - [x] Initial dropdown item (Delete)
 
 ### CODE
 

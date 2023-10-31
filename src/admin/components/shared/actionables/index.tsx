@@ -1,7 +1,7 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import clsx from "clsx"
 import React from "react"
-import { Button } from "@medusajs/ui"
+import Button from "../button"
 import MoreHorizontalIcon from "../icons/more-horizontal-icon"
 
 export type ActionType = {
@@ -30,7 +30,8 @@ const Actionables: React.FC<ActionablesProps> = ({
           <DropdownMenu.Trigger asChild>
             {!customTrigger ? (
               <Button
-                variant="primary"
+                variant="ghost"
+                size="small"
                 className="w-xlarge h-xlarge focus-visible:shadow-input focus-visible:border-violet-60 focus:shadow-none focus-visible:outline-none"
               >
                 <MoreHorizontalIcon size={20} />
@@ -49,7 +50,8 @@ const Actionables: React.FC<ActionablesProps> = ({
                 <DropdownMenu.Item className="mb-1 last:mb-0" key={i}>
                   {
                     <Button
-                      variant="secondary"
+                      variant="ghost"
+                      size="small"
                       className={clsx("flex w-full justify-start", {
                         "text-rose-50": action?.variant === "danger",
                         "pointer-events-none select-none opacity-50":
@@ -89,6 +91,7 @@ const Actionables: React.FC<ActionablesProps> = ({
       <div>
         <Button
           variant="secondary"
+          size="small"
           type="button"
           className="flex items-center"
           onClick={action.onClick}

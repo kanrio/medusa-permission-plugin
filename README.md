@@ -12,7 +12,7 @@ Manage user permissions seamlessly on your Medusa commerce application.
 - Ready-integration with Medusa's Admin Dashboard.
 
 <p align="center">
-  <img src="docs/view.gif" width="388" height="315" alt="">
+  <img src="./docs/view.gif" width="388" height="315" alt="">
 </p>
 
 ## Prerequisites

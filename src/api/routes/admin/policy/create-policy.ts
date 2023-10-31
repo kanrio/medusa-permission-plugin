@@ -1,9 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsIn,
-  Matches,
-} from "class-validator"
+import { IsNotEmpty, IsString, IsIn, Matches } from "class-validator"
 import { Request, Response } from "express"
 import { EntityManager } from "typeorm"
 import PolicyService from "../../../../services/policy"

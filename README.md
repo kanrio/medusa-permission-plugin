@@ -53,39 +53,6 @@ const plugins = [
 **Note:** This plugin is currently in an experimental phase. Please exercise caution and ensure adequate testing before
 deploying it in a production environment.
 
-## ROADMAP
-
-### UI
-
-- [ ] **Edit Policy Page**
-- [ ] **Edit Policy Cluster Page**
-- [x] **Dropdown Menu Items**
-  - [x] Initial dropdown item (Delete)
-
-### CODE
-
-- [x] **Use zod on creating policy page**
-- [x] **Refactor validation**
-- [x] **Guard policy routes, add migraiton policy of policies**
-- [x] **Admin users pagination, custom api for users, reveal policy cluster in that context**
-- [ ] **Notifications**
-- [ ] **Medusa v1.17.2 new middleware support test and migration**
-- [ ] **Testing Suite**
-- [ ] **Examine users and invitations routes**
-
-### PACKAGE
-
-- [ ] **Publish package**
-
-### FEATURE
-
-- [ ] **Custom Regex and subpath support**
-
-### BUG
-
-- [x] **If query key is coming as ="" response is not coming**
-- [ ] **Search re-render every keystroke**
-
 ### Notes
 
 Please note that this plugin's UI components are a bit rough around the edges, as they have been "hacked through" from

@@ -86,4 +86,17 @@ export function useAdminPolicyClusterDelete(id: string) {
   }
 }
 
+export function useAdminPolicyCluster(id: string) {
+  const { data, isLoading, isError } = useAdminCustomQuery<
+    AdminClusterQuery,
+    AdminPolicyClusterRes
+  >(`/policy-cluster/${id}`, ["policy-cluster-single", id])
+
+  return {
+    data,
+    isLoading,
+    isError,
+  }
+}
+
 export default useAdminClusters

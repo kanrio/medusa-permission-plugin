@@ -1,20 +1,19 @@
 import { ActionType } from "../../../shared/actionables/"
-import { Policy, useAdminPolicyDelete } from "../../../hooks/policy"
+import { Cluster, useAdminPolicyClusterDelete } from "../../../hooks/cluster/"
 import useImperativeDialog from "../../../hooks/use-imperative-dialog"
-import { Trash } from "@medusajs/icons"
 
-const usePolicyActions = (policy: Policy) => {
+const usePolicyClusterActions = (policyCluster: Cluster) => {
   const dialog = useImperativeDialog()
-  const deletePolicy = useAdminPolicyDelete(policy?.id)
+  const deleteCluserPolicy = useAdminPolicyClusterDelete(policyCluster?.id)
 
   const handleDelete = async () => {
     const shouldDelete = await dialog({
-      heading: "Delete Policy",
-      text: "Are you sure you want to delete this policy?",
+      heading: "Delete Policy Cluster",
+      text: "Are you sure you want to delete this policy cluster?",
     })
 
     if (shouldDelete) {
-      deletePolicy.mutate()
+      deleteCluserPolicy.mutate()
     }
   }
 
@@ -23,7 +22,7 @@ const usePolicyActions = (policy: Policy) => {
       label: "Delete",
       variant: "danger",
       onClick: handleDelete,
-      icon: <Trash />,
+      // FIXME: Icon is broken right now and I don't know why
     },
   ]
 
@@ -32,4 +31,4 @@ const usePolicyActions = (policy: Policy) => {
   }
 }
 
-export default usePolicyActions
+export default usePolicyClusterActions

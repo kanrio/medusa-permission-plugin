@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { usePagination, useTable } from "react-table"
 import TableContainer from "../../../shared/custom-table/table-container"
@@ -7,7 +7,6 @@ import Table from "../../../shared/custom-table"
 import { useAdminPolicy } from "../../../hooks/policy"
 import { usePolicyColumn } from "./use-policy-columns"
 import usePolicyActions from "../use-policy-actions"
-import policy from "../../../hooks/policy/"
 
 const DEFAULT_PAGE_SIZE = 15
 
@@ -95,7 +94,6 @@ const PolicyTable = () => {
     }
   }
 
-  const { getActions } = usePolicyActions(policy)
   return (
     <>
       <TableContainer

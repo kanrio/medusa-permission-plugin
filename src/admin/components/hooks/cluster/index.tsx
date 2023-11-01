@@ -1,4 +1,8 @@
-import { useAdminCustomPost, useAdminCustomQuery } from "medusa-react"
+import {
+  useAdminCustomPost,
+  useAdminCustomQuery,
+  useAdminCustomDelete,
+} from "medusa-react"
 
 export type Cluster = {
   name: string
@@ -31,6 +35,12 @@ export type AdminPolicyClusterReq = {
   user: string[]
 }
 
+export type AdminPolicyClusterDeleteReq = {
+  id: string
+  object: string
+  deleted: boolean
+}
+
 function useAdminClusters(queryObject: any) {
   const { data, isLoading, isRefetching } = useAdminCustomQuery<
     AdminClusterQuery,
@@ -60,6 +70,19 @@ export function mutateClusterPolicy() {
     isSuccess,
     isIdle,
     isPaused,
+  }
+}
+
+export function useAdminPolicyClusterDelete(id: string) {
+  const { mutate, isLoading, isError } =
+    useAdminCustomDelete<AdminPolicyClusterDeleteReq>(`/policy-cluster/${id}`, [
+      "deleted-policy-cluster",
+    ])
+
+  return {
+    mutate,
+    isLoading,
+    isError,
   }
 }
 

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { usePagination, useTable } from "react-table"
 import TableContainer from "../../../shared/custom-table/table-container"
@@ -6,6 +6,7 @@ import useClusterColumn from "./use-cluster-columns"
 import { useClusterFilters } from "./use-cluster-filters"
 import Table from "../../../shared/custom-table"
 import useAdminClusters from "../../../hooks/cluster"
+import usePolicyClusterActions from "../use-cluster-actions"
 
 const DEFAULT_PAGE_SIZE = 15
 
@@ -140,21 +141,34 @@ const ClusterTable = () => {
           <Table.Body {...getTableBodyProps()}>
             {rows.map((row) => {
               prepareRow(row)
+
               return (
                 // eslint-disable-next-line react/jsx-key
-                <Table.Row color={"inherit"} {...row.getRowProps()}>
-                  {row.cells.map((cell, index) => {
-                    return (
-                      <Fragment key={index}>{cell.render("Cell")}</Fragment>
-                    )
-                  })}
-                </Table.Row>
+                <PolicyClusterRow row={row} {...row.getRowProps()} />
               )
             })}
           </Table.Body>
         </Table>
       </TableContainer>
     </>
+  )
+}
+
+const PolicyClusterRow = ({ row, ...rest }) => {
+  const policyCluster = row.original
+  const { getActions } = usePolicyClusterActions(policyCluster)
+
+  return (
+    <Table.Row color={"inherit"} actions={getActions()} {...rest}>
+      {row.cells.map((cell, index) => {
+        return (
+          // eslint-disable-next-line react/jsx-key
+          <Table.Cell {...cell.getCellProps()}>
+            {cell.render("Cell", { index })}
+          </Table.Cell>
+        )
+      })}
+    </Table.Row>
   )
 }
 

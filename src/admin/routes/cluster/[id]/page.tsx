@@ -1,10 +1,18 @@
-import { useParams } from "react-router-dom"
 import { PolicyClusterEdit } from "../../../components/custom/cluster/edit/index"
+import BackButton from "../../../components/shared/back-button"
 
 const PolicyClusterDetailsPage = () => {
-  const { id } = useParams()
+  return (
+    <>
+      <BackButton
+        label="Back to clusters"
+        path="/a/cluster"
+        className="mb-xsmall"
+      />
 
-  return <PolicyClusterEdit />
+      <PolicyClusterEdit />
+    </>
+  )
 }
 
 export default PolicyClusterDetailsPage

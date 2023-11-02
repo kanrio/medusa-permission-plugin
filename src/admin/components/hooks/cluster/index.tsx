@@ -35,6 +35,13 @@ export type AdminPolicyClusterReq = {
   user: string[]
 }
 
+export type AdminPolicyClusterUpdateReq = {
+  name?: string
+  description?: string
+  policy?: string[]
+  user?: string[]
+}
+
 export type AdminPolicyClusterDeleteReq = {
   id: string
   object: string
@@ -61,6 +68,24 @@ export function mutateClusterPolicy() {
     useAdminCustomPost<AdminPolicyClusterReq, AdminPolicyClusterRes>(
       `/policy-cluster`,
       ["policy-cluster-post"]
+    )
+
+  return {
+    mutate,
+    isLoading,
+    isError,
+    isSuccess,
+    isIdle,
+    isPaused,
+  }
+}
+
+export function mutateClusterPolicyId(id: string) {
+  const { mutate, isLoading, isError, isSuccess, isIdle, isPaused } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useAdminCustomPost<AdminPolicyClusterUpdateReq, AdminPolicyClusterRes>(
+      `/policy-cluster/${id}`,
+      ["policy-cluster-post-update"]
     )
 
   return {

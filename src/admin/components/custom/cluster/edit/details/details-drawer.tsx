@@ -8,6 +8,7 @@ import React from "react"
 import { usePrompt, Drawer, Button } from "@medusajs/ui"
 import { Form } from "../../../../shared/form/"
 import { nestedForm } from "../../../../shared/form/nested-form/"
+import { mutateClusterPolicyId } from "../../../../hooks/cluster"
 
 type PolicyClusterListDetailsDrawerProps = {
   open: boolean
@@ -24,8 +25,8 @@ const PolicyClusterDetailsDrawer = ({
   onOpenChange,
   policyCluster,
 }: PolicyClusterListDetailsDrawerProps) => {
-  // FIXME: Post request on id, policy cluster
-  // const { mutateAsync, isLoading } = useAdminUpdatePriceList(priceList.id)
+  const { mutate, isError, isIdle, isLoading, isPaused, isSuccess } =
+    mutateClusterPolicyId(policyCluster?.id)
 
   const form = useForm<PolicyClusterDetailsFormValues>({
     defaultValues: getDefaultValues(policyCluster),
@@ -66,15 +67,31 @@ const PolicyClusterDetailsDrawer = ({
     [isDirty, reset, prompt, onOpenChange]
   )
 
-  // FIXME: Update Code
-  const onSubmit = () => {}
+  const onSubmit = handleSubmit(async (values) => {
+    mutate(
+      {
+        name: values.details.general.name,
+        description: values.details.general.description,
+      },
+      {
+        onSuccess: () => {
+          // TODO: Notification
+
+          onOpenChange(false)
+        },
+        onError: (err) => {
+          // TODO: Notification
+        },
+      }
+    )
+  })
 
   return (
     <Drawer open={open} onOpenChange={onStateChange}>
       <Form {...form}>
         <Drawer.Content>
           <Drawer.Header>
-            <Drawer.Title>{"Edit Price List Details"}</Drawer.Title>
+            <Drawer.Title>{"Edit Policy Cluster Details"}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body className="overflow-y-auto">
             <ClusterDetailsForm

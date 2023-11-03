@@ -3,6 +3,7 @@ import { Container, Text } from "@medusajs/ui"
 import { useParams } from "react-router-dom"
 import { useAdminPolicyCluster } from "../../../hooks/cluster"
 import { PolicyClusterDetailsSection } from "./details/details-section"
+import { PolicyClusterPolicySection } from "./policy/policy-section"
 
 const PolicyClusterEdit = () => {
   const { id } = useParams<{ id: string }>()
@@ -41,9 +42,14 @@ const PolicyClusterEdit = () => {
           policyCluster={data?.policy_cluster}
         />
         {/* <PriceListPricesSection
-                key={`${price_list.updated_at}`}
-                priceList={price_list}
-            />*/}
+          key={`${price_list.updated_at}`}
+          priceList={price_list}
+        /> */}
+        <PolicyClusterPolicySection
+          key={`${data?.policy_cluster.updated_at}`}
+          // @ts-ignore
+          policyCluster={data?.policy_cluster}
+        ></PolicyClusterPolicySection>
         {/* Spacer */}
         <div className="h-xlarge w-full" />
       </div>

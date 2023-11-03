@@ -4,6 +4,7 @@ import { transformBody, transformQuery } from "@medusajs/medusa"
 import { AdminGetPolicyClusterParams } from "./list-policy-cluster"
 import { AdminPostPolicyClusterReq } from "./update-policy-cluster"
 import { AdminPolicyClusterReq } from "./create-policy-cluster"
+import { AdminDeletePolicyFromPolicyClusterReq } from "./delete-policy-batch"
 
 export default (app) => {
   const route = Router()
@@ -37,9 +38,25 @@ export default (app) => {
 
   policiesRouter.get("/", require("./get-policy-cluster").default)
 
+  policiesRouter.get(
+    "/policy",
+    transformQuery(AdminGetPolicyClusterParams, {
+      defaultRelations: defaultAdminPolicyClusterRelationsOnIdParameters,
+      isList: true,
+    }),
+    require("./get-policy-cluster-policy").default
+  )
+
+  policiesRouter.post(
+    "/policy/batch",
+    transformBody(AdminDeletePolicyFromPolicyClusterReq),
+    require("./delete-policy-batch").default
+  )
+
   return app
 }
 export const defaultAdminPolicyClusterRelations = []
+export const defaultAdminPolicyClusterRelationsOnIdParameters = ["policy"]
 
 export * from "./list-policy-cluster"
 export * from "./create-policy-cluster"

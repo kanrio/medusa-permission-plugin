@@ -3,6 +3,7 @@ import {
   useAdminCustomQuery,
   useAdminCustomDelete,
 } from "medusa-react"
+import { Policy } from "../policy"
 
 export type Cluster = {
   name: string
@@ -19,6 +20,13 @@ export type AdminClusterQuery = {
 
 export type AdminListPolicyClusterRes = {
   policy_cluster: Cluster[]
+  count: number
+  offset: number
+  limit: number
+}
+
+export type AdminListPolicyClusterPolicy = {
+  policy_cluster: Policy[]
   count: number
   offset: number
   limit: number
@@ -44,6 +52,16 @@ export type AdminPolicyClusterUpdateReq = {
 
 export type AdminPolicyClusterDeleteReq = {
   id: string
+  object: string
+  deleted: boolean
+}
+
+export type AdminPolicyClusterPolicyDeleteBatchReq = {
+  policy: string[]
+}
+
+export type AdminPolicyClusterPolicyDeleteBatchRes = {
+  ids: string
   object: string
   deleted: boolean
 }
@@ -119,6 +137,35 @@ export function useAdminPolicyCluster(id: string) {
 
   return {
     data,
+    isLoading,
+    isError,
+  }
+}
+
+export function useAdminPolicyClusterPolicies(id: string) {
+  const { data, isLoading, isError } = useAdminCustomQuery<
+    AdminClusterQuery,
+    AdminListPolicyClusterPolicy
+  >(`/policy-cluster/${id}/policy`, ["policy-cluster-single-policy", id])
+
+  return {
+    data,
+    isLoading,
+    isError,
+    count: data?.count,
+  }
+}
+
+export function useAdminPolicyClusterDeletePolicy(id: string) {
+  const { mutate, isLoading, isError } = useAdminCustomPost<
+    AdminPolicyClusterPolicyDeleteBatchReq,
+    AdminPolicyClusterPolicyDeleteBatchRes
+  >(`/policy-cluster/${id}/policy/batch`, [
+    "deleted-policy-cluster-policy-batch",
+  ])
+
+  return {
+    mutate,
     isLoading,
     isError,
   }

@@ -27,10 +27,6 @@ import {
   type Row,
 } from "@tanstack/react-table"
 import {
-  PolicyFilter,
-  PolicyFilterMenu,
-} from "../../../policy/policy-filter-menu"
-import {
   EllipsisHorizontal,
   ExclamationCircle,
   Spinner,
@@ -40,10 +36,7 @@ import {
   useAdminPolicyClusterDeletePolicy,
   useAdminPolicyClusterPolicies,
 } from "../../../../hooks/cluster"
-import {
-  getDateComparisonOperatorFromSearchParams,
-  getStringFromSearchParams,
-} from "./getDateComparisonOperatorFromSearchParams"
+import { getStringFromSearchParams } from "./getDateComparisonOperatorFromSearchParams"
 
 type PolicyClusterPolicySectionProps = {
   policyCluster: PolicyCluster
@@ -57,7 +50,8 @@ const PolicyClusterPolicySection = ({
 }: PolicyClusterPolicySectionProps) => {
   const [searchParams] = useSearchParams()
 
-  const navigate = useNavigate()
+  // TODO: Use later in the add policies modal.
+  //const navigate = useNavigate()
 
   const [showAddPolicyModal, setShowAddPolicyModal] = React.useState(false)
   const [showEditPolicyModal, setShowEditPolicyModal] = React.useState(false)
@@ -78,33 +72,6 @@ const PolicyClusterPolicySection = ({
   )
 
   const { query, setQuery } = useDebouncedSearchParam()
-
-  const onFiltersChange = (filters: PolicyFilter) => {
-    const current = new URLSearchParams(searchParams)
-
-    if (filters.created_at) {
-      current.set("created_at", JSON.stringify(filters.created_at))
-    } else {
-      current.delete("created_at")
-    }
-
-    if (filters.updated_at) {
-      current.set("updated_at", JSON.stringify(filters.updated_at))
-    } else {
-      current.delete("updated_at")
-    }
-
-    navigate({ search: current.toString() }, { replace: true })
-  }
-
-  const onClearFilters = () => {
-    const current = new URLSearchParams(searchParams)
-
-    current.delete("created_at")
-    current.delete("updated_at")
-
-    navigate({ search: current.toString() }, { replace: true })
-  }
 
   const prompt = usePrompt()
 
@@ -137,20 +104,11 @@ const PolicyClusterPolicySection = ({
     )
   }
 
-  // TODO: Search doesn't work
   const { data, count, isLoading, isError } = useAdminPolicyClusterPolicies(
     policyCluster.id,
     {
       limit: PAGE_SIZE,
       offset,
-      created_at: getDateComparisonOperatorFromSearchParams(
-        "created_at",
-        searchParams
-      ),
-      updated_at: getDateComparisonOperatorFromSearchParams(
-        "updated_at",
-        searchParams
-      ),
       q: getStringFromSearchParams("q", searchParams),
     }
   )
@@ -193,24 +151,10 @@ const PolicyClusterPolicySection = ({
       <div className="flex items-center justify-between px-8 pt-6 pb-4">
         <Heading>{"Policy"}</Heading>
         <div className="flex items-center gap-x-2">
-          <PolicyFilterMenu
-            value={{
-              created_at: getDateComparisonOperatorFromSearchParams(
-                "created_at",
-                searchParams
-              ),
-              updated_at: getDateComparisonOperatorFromSearchParams(
-                "updated_at",
-                searchParams
-              ),
-            }}
-            onFilterChange={onFiltersChange}
-            onClearFilters={onClearFilters}
-          />
           <Input
             type="search"
             size="small"
-            placeholder={"Search products"}
+            placeholder={"Search policies"}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -232,7 +176,7 @@ const PolicyClusterPolicySection = ({
             <ExclamationCircle />
             <Text size="small">
               {
-                "An error occured while fetching the products. Try to reload the page, or if the issue persists, try again later."
+                "An error occured while fetching the policies. Try to reload the page, or if the issue persists, try again later."
               }
             </Text>
           </div>
@@ -337,7 +281,7 @@ const usePolicyClusterPolicyColumns = ({
               onCheckedChange={(value) =>
                 table.toggleAllPageRowsSelected(!!value)
               }
-              aria-label={"Select all products on the current page"}
+              aria-label={"Select all policies on the current page"}
             />
           )
         },

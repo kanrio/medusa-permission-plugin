@@ -221,6 +221,7 @@ export default class PolicyClusterService extends TransactionBaseService {
     })
   }
 
+  // FIXME: Too hacky, fix this
   async listPolicy(
     selector: ListAndCountSelector = {},
     config: FindConfig<Policy> = { skip: 0, take: 20 },
@@ -284,10 +285,14 @@ export default class PolicyClusterService extends TransactionBaseService {
       }
     }
 
+    const where = query.where as FindOptionsWhere<Policy>
+    delete where[0].id
+
     const policies = await policyRepository
       .createQueryBuilder("policy")
       .innerJoin("policy_cluster_policy", "pcp", "pcp.policyId = policy.id")
       .where("pcp.policyClusterId = :policyClusterId", { policyClusterId })
+      .andWhere(query.where)
       .skip(config.skip)
       .take(config.take)
       // @ts-ignore
@@ -298,6 +303,7 @@ export default class PolicyClusterService extends TransactionBaseService {
       .createQueryBuilder("policy")
       .innerJoin("policy_cluster_policy", "pcp", "pcp.policyId = policy.id")
       .where("pcp.policyClusterId = :policyClusterId", { policyClusterId })
+      .andWhere(query.where)
       .getCount()
 
     return [policies, count]

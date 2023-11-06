@@ -286,8 +286,10 @@ export default class PolicyClusterService extends TransactionBaseService {
     }
 
     const where = query.where as FindOptionsWhere<Policy>
-    delete where[0].id
 
+    delete where.id;
+    delete where[0]?.id;
+    
     const policies = await policyRepository
       .createQueryBuilder("policy")
       .innerJoin("policy_cluster_policy", "pcp", "pcp.policyId = policy.id")

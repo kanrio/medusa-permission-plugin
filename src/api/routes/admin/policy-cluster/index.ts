@@ -5,7 +5,7 @@ import { AdminGetPolicyClusterParams } from "./list-policy-cluster"
 import { AdminPostPolicyClusterReq } from "./update-policy-cluster"
 import { AdminPolicyClusterReq } from "./create-policy-cluster"
 import { AdminDeletePolicyFromPolicyClusterReq } from "./delete-policy-batch"
-import { AdminGetPolicyClusterAvailablePolicyParams } from "./list-available-policy"
+import { AdminAttachPolicyFromPolicyClusterReq } from "./attach-policy-batch"
 
 export default (app) => {
   const route = Router()
@@ -54,13 +54,10 @@ export default (app) => {
     require("./delete-policy-batch").default
   )
 
-  policiesRouter.get(
-    "/policy/available",
-    transformQuery(AdminGetPolicyClusterAvailablePolicyParams, {
-      defaultRelations: defaultAdminPolicyClusterRelationsOnIdParameters,
-      isList: true,
-    }),
-    require("./list-available-policy").default
+  policiesRouter.post(
+    "/policy/attach-batch",
+    transformBody(AdminAttachPolicyFromPolicyClusterReq),
+    require("./attach-policy-batch").default
   )
 
   return app

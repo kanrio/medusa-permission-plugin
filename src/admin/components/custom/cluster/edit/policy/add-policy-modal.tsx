@@ -11,14 +11,13 @@ import {
   ProgressStatus,
   ProgressTabs,
   usePrompt,
-  Text,
 } from "@medusajs/ui"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Policy } from "../../../../../../models/policy"
 import { useForm } from "react-hook-form"
 import { Form } from "../../../../shared/form/index"
 import { nestedForm } from "../../../../shared/form/nested-form"
-import { ExclamationCircle, Spinner } from "@medusajs/icons"
+import { useAdminPolicyClusterAttachPolicy } from "../../../../hooks/cluster"
 
 type AddPolicyModalProps = {
   open: boolean
@@ -29,7 +28,6 @@ type AddPolicyModalProps = {
 
 enum Tab {
   POLICY = "policy",
-  EDIT = "edit",
 }
 
 const addPolicySchema = z.object({
@@ -54,7 +52,6 @@ const AddPolicyModal = ({
   const [tab, setTab] = React.useState<Tab>(Tab.POLICY)
   const [status, setStatus] = React.useState<StepStatus>({
     [Tab.POLICY]: "not-started",
-    [Tab.EDIT]: "not-started",
   })
 
   const promptTitle = "Are you sure?"
@@ -64,6 +61,10 @@ const AddPolicyModal = ({
     "You have unsaved changes, are you sure you want to go back?"
 
   const prompt = usePrompt()
+
+  const { mutate, isLoading: isSubmitting } = useAdminPolicyClusterAttachPolicy(
+    policyCluster.id
+  )
 
   const form = useForm<AddPolicyFormValue>({
     resolver: zodResolver(addPolicySchema),
@@ -88,7 +89,6 @@ const AddPolicyModal = ({
     setSelectedIds([])
     setStatus({
       [Tab.POLICY]: "not-started",
-      [Tab.EDIT]: "not-started",
     })
 
     reset({
@@ -131,22 +131,13 @@ const AddPolicyModal = ({
         setTab(Tab.POLICY)
         return
       }
-
-      //   const defaultValues = getValues(`policy.ids.${policy.id}`)
-      //   resetEdit(defaultValues)
       setPolicy(policy)
-      setTab(Tab.EDIT)
     },
     [getValues]
   )
 
   const onTabChange = React.useCallback(
     async (value: Tab) => {
-      if (tab === Tab.EDIT) {
-        // await onExitProductPrices(value)
-        return
-      }
-
       setTab(value)
     },
     [tab]
@@ -182,20 +173,34 @@ const AddPolicyModal = ({
 
     onUpdateSelectedPolicyIds(ids)
 
-    setTab(Tab.EDIT)
     setStatus((prev) => ({
       ...prev,
       [Tab.POLICY]: "completed",
     }))
   }, [trigger, getValues, onUpdateSelectedPolicyIds])
 
+  const onSubmit = handleSubmit(async (data) => {
+    const policyIds = data.policy.ids
+
+    console.log(policyIds)
+
+    mutate(
+      { policy: policyIds },
+      {
+        onSuccess: () => {
+          // TODO: Notification
+          onCloseModal()
+        },
+        onError: (error) => {
+          // TODO: Notification
+        },
+      }
+    )
+  })
   const onBack = React.useCallback(async () => {
     switch (tab) {
       case Tab.POLICY:
         onModalStateChange(false)
-        break
-      case Tab.EDIT:
-        // await onCancelPriceEdit()
         break
     }
   }, [tab, onModalStateChange])
@@ -213,9 +218,7 @@ const AddPolicyModal = ({
     switch (tab) {
       case Tab.POLICY:
         onValidateProducts()
-        break
-      case Tab.EDIT:
-        // await onSavePriceEdit()
+        await onSubmit()
         break
     }
   }, [onValidateProducts, tab])
@@ -223,9 +226,7 @@ const AddPolicyModal = ({
   const nextButtonText = React.useMemo(() => {
     switch (tab) {
       case Tab.POLICY:
-        return "Continue"
-      case Tab.EDIT:
-        return "Save Prices"
+        return "Attach Policy"
     }
   }, [tab])
 
@@ -247,21 +248,10 @@ const AddPolicyModal = ({
                   {"Choose Policies"}
                 </span>
               </ProgressTabs.Trigger>
-              {policy && (
-                <ProgressTabs.Trigger
-                  value={Tab.EDIT}
-                  className="w-full max-w-[200px]"
-                  status={"not-started"}
-                >
-                  <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                    {policy.name}
-                  </span>
-                </ProgressTabs.Trigger>
-              )}
             </ProgressTabs.List>
             <div className="flex flex-1 items-center justify-end gap-x-2">
               <Button
-                // disabled={isSubmitting}
+                disabled={isSubmitting}
                 variant="secondary"
                 onClick={onBack}
               >
@@ -270,7 +260,7 @@ const AddPolicyModal = ({
               <Button
                 type="button"
                 className="whitespace-nowrap"
-                // isLoading={isSubmitting}
+                isLoading={isSubmitting}
                 onClick={onNext}
               >
                 {nextButtonText}

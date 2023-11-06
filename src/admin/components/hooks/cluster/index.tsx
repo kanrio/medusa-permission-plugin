@@ -32,6 +32,13 @@ export type AdminListPolicyClusterPolicy = {
   limit: number
 }
 
+export type AdminListPolicyClusterAvailablePolicy = {
+  policy: Policy[]
+  count: number
+  offset: number
+  limit: number
+}
+
 export type AdminPolicyClusterRes = {
   policy_cluster: Cluster
 }
@@ -59,11 +66,19 @@ export type AdminPolicyClusterDeleteReq = {
 export type AdminPolicyClusterPolicyDeleteBatchReq = {
   policy: string[]
 }
+type AdminPolicyclusterPolicyAttachBatchReq =
+  AdminPolicyClusterPolicyDeleteBatchReq
 
 export type AdminPolicyClusterPolicyDeleteBatchRes = {
   ids: string
   object: string
   deleted: boolean
+}
+
+export type AdminPolicyClusterPolicyAttachBatchRes = {
+  ids: string
+  object: string
+  attached: boolean
 }
 
 function useAdminClusters(queryObject: any) {
@@ -162,6 +177,22 @@ export function useAdminPolicyClusterDeletePolicy(id: string) {
     AdminPolicyClusterPolicyDeleteBatchRes
   >(`/policy-cluster/${id}/policy/batch`, [
     "deleted-policy-cluster-policy-batch",
+    id,
+  ])
+
+  return {
+    mutate,
+    isLoading,
+    isError,
+  }
+}
+
+export function useAdminPolicyClusterAttachPolicy(id: string) {
+  const { mutate, isLoading, isError } = useAdminCustomPost<
+    AdminPolicyclusterPolicyAttachBatchReq,
+    AdminPolicyClusterPolicyAttachBatchRes
+  >(`/policy-cluster/${id}/policy/attach-batch`, [
+    "available-policy-cluster-policy-batch",
     id,
   ])
 

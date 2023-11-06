@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { PolicyCluster } from "../../../../../../models/policy-cluster"
 import { Policy } from "../../../../../../models/policy"
 import * as React from "react"
@@ -39,7 +39,6 @@ import {
 } from "../../../../hooks/cluster"
 import { getStringFromSearchParams } from "../../../../../utils/date-comparison-operators"
 import { AddPolicyModal } from "./add-policy-modal"
-import { useAdminPolicy } from "../../../../hooks/policy"
 
 type PolicyClusterPolicySectionProps = {
   policyCluster: PolicyCluster
@@ -54,7 +53,7 @@ const PolicyClusterPolicySection = ({
   const [searchParams] = useSearchParams()
 
   // TODO: Use later in the add policies modal.
-  //const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const [showAddPolicyModal, setShowAddPolicyModal] = React.useState(false)
 
@@ -116,11 +115,6 @@ const PolicyClusterPolicySection = ({
       q: getStringFromSearchParams("q", searchParams),
     }
   )
-
-  const { data: allPolicy } = useAdminPolicy({
-    limit: count,
-    fields: "id",
-  })
 
   const onEditSinglePolicy = (id: string) => {
     setPolicyIdsToEdit([id])
@@ -258,7 +252,7 @@ const PolicyClusterPolicySection = ({
         pageSize={pagination.pageSize}
       />
       <AddPolicyModal
-        policyIds={(allPolicy?.policy?.map((p) => p.id) as string[]) ?? []}
+        policyIds={(data?.policy_cluster?.map((p) => p.id) as string[]) ?? []}
         policyCluster={policyCluster}
         open={showAddPolicyModal}
         onOpenChange={setShowAddPolicyModal}

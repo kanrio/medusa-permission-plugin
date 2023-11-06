@@ -332,82 +332,35 @@ export default class PolicyClusterService extends TransactionBaseService {
           )
           .execute()
       }
+
+      await this.eventBusService_
+        .withTransaction(manager)
+        .emit(PolicyClusterService.Events.UPDATED, {})
     })
   }
 
-  // FIXME: Also too hacky, fix this
-  async fetchAvailablePolicies(
-    selector: ListAndCountSelector = {},
-    config: FindConfig<Policy> = { skip: 0, take: 20 },
+  async attachPolicyClusterRelations(
+    policyIds: string[],
     policyClusterId: string
-  ): Promise<[Policy[], number]> {
-    if (!isDefined(policyClusterId)) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        `"policyClusterId" must be defined`
-      )
-    }
+  ) {
+    return await this.atomicPhase_(async (manager) => {
+      const policyRepository = manager.withRepository(this.policyRepository_)
 
-    const query = buildQuery({ id: policyClusterId }, config)
-
-    const policyRepository = this.activeManager_.withRepository(
-      this.policyRepository_
-    )
-
-    let q
-    if (isString(selector.q)) {
-      q = selector.q
-      delete selector.q
-    }
-
-    if (q) {
-      const where = query.where as FindOptionsWhere<Policy>
-
-      delete where.name
-      delete where.created_at
-      delete where.updated_at
-
-      query.where = [
-        {
-          ...where,
-          name: ILike(`%${q}%`),
-        },
-      ]
-    }
-
-    const order: Record<string, string> = {}
-
-    if (typeof config.order === "string") {
-      order[`policy.${config.order}`] = "ASC"
-    } else {
-      for (const [key, value] of Object.entries(config.order)) {
-        order[`policy.${key}`] = value
+      for (const policy of policyIds) {
+        await policyRepository
+          .createQueryBuilder()
+          .insert()
+          .into("policy_cluster_policy")
+          .values({
+            policyId: policy,
+            policyClusterId: policyClusterId,
+          })
+          .execute()
       }
-    }
 
-    const where = query.where as FindOptionsWhere<Policy>
-
-    delete where.id
-    delete where[0]?.id
-
-    const policies = await policyRepository
-      .createQueryBuilder("policy")
-      .leftJoin("policy_cluster_policy", "pcp", "pcp.policyId = policy.id")
-      .where("pcp.policyClusterId != :policyClusterId", { policyClusterId })
-      .orWhere("pcp.policyClusterId IS NULL")
-      .andWhere(where)
-      .skip(config.skip)
-      .take(config.take)
-      .getMany()
-
-    const count = await policyRepository
-      .createQueryBuilder("policy")
-      .leftJoin("policy_cluster_policy", "pcp", "pcp.policyId = policy.id")
-      .where("pcp.policyClusterId != :policyClusterId", { policyClusterId })
-      .orWhere("pcp.policyClusterId IS NULL")
-      .andWhere(where)
-      .getCount()
-
-    return [policies, count]
+      await this.eventBusService_
+        .withTransaction(manager)
+        .emit(PolicyClusterService.Events.UPDATED, {})
+    })
   }
 }

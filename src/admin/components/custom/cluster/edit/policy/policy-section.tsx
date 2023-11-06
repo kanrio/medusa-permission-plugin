@@ -116,6 +116,16 @@ const PolicyClusterPolicySection = ({
     }
   )
 
+  const {
+    data: allPolicy,
+    isLoading: isLoadingAll,
+    isError: isErrorAll,
+  } = useAdminPolicyClusterPolicies(policyCluster.id, {
+    limit: 99999, // FIXME: This is a hack to get all policies
+    offset,
+    q: getStringFromSearchParams("q", searchParams),
+  })
+
   const onEditSinglePolicy = (id: string) => {
     setPolicyIdsToEdit([id])
     setShowEditPolicyModal(true)
@@ -252,7 +262,9 @@ const PolicyClusterPolicySection = ({
         pageSize={pagination.pageSize}
       />
       <AddPolicyModal
-        policyIds={(data?.policy_cluster?.map((p) => p.id) as string[]) ?? []}
+        policyIds={
+          (allPolicy?.policy_cluster?.map((p) => p.id) as string[]) ?? []
+        }
         policyCluster={policyCluster}
         open={showAddPolicyModal}
         onOpenChange={setShowAddPolicyModal}

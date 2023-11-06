@@ -30,13 +30,16 @@ import {
   EllipsisHorizontal,
   ExclamationCircle,
   Spinner,
+  Tag,
   Trash,
 } from "@medusajs/icons"
 import {
   useAdminPolicyClusterDeletePolicy,
   useAdminPolicyClusterPolicies,
 } from "../../../../hooks/cluster"
-import { getStringFromSearchParams } from "./getDateComparisonOperatorFromSearchParams"
+import { getStringFromSearchParams } from "../../../../../utils/date-comparison-operators"
+import { AddPolicyModal } from "./add-policy-modal"
+import { useAdminPolicy } from "../../../../hooks/policy"
 
 type PolicyClusterPolicySectionProps = {
   policyCluster: PolicyCluster
@@ -54,6 +57,7 @@ const PolicyClusterPolicySection = ({
   //const navigate = useNavigate()
 
   const [showAddPolicyModal, setShowAddPolicyModal] = React.useState(false)
+
   const [showEditPolicyModal, setShowEditPolicyModal] = React.useState(false)
 
   const [policyIdsToEdit, setPolicyIdsToEdit] = React.useState<string[] | null>(
@@ -113,6 +117,11 @@ const PolicyClusterPolicySection = ({
     }
   )
 
+  const { data: allPolicy } = useAdminPolicy({
+    limit: count,
+    fields: "id",
+  })
+
   const onEditSinglePolicy = (id: string) => {
     setPolicyIdsToEdit([id])
     setShowEditPolicyModal(true)
@@ -158,6 +167,19 @@ const PolicyClusterPolicySection = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <IconButton>
+                <EllipsisHorizontal />
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end" side="bottom">
+              <DropdownMenu.Item onClick={() => setShowAddPolicyModal(true)}>
+                <Tag className="text-ui-fg-subtle" />
+                <span className="ml-2">{"Add Policy"}</span>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
         </div>
       </div>
       <div
@@ -234,6 +256,12 @@ const PolicyClusterPolicySection = ({
         pageIndex={pagination.pageIndex}
         pageCount={pageCount}
         pageSize={pagination.pageSize}
+      />
+      <AddPolicyModal
+        policyIds={(allPolicy?.policy?.map((p) => p.id) as string[]) ?? []}
+        policyCluster={policyCluster}
+        open={showAddPolicyModal}
+        onOpenChange={setShowAddPolicyModal}
       />
       <CommandBar open={Object.keys(rowSelection).length > 0}>
         <CommandBar.Bar>

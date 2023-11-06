@@ -6,6 +6,7 @@ import { AdminPostPolicyClusterReq } from "./update-policy-cluster"
 import { AdminPolicyClusterReq } from "./create-policy-cluster"
 import { AdminDeletePolicyFromPolicyClusterReq } from "./delete-policy-batch"
 import { AdminAttachPolicyFromPolicyClusterReq } from "./attach-policy-batch"
+import { AdminGetPolicyClusterUserParams } from "./get-policy-cluster-user"
 
 export default (app) => {
   const route = Router()
@@ -58,6 +59,15 @@ export default (app) => {
     "/policy/attach-batch",
     transformBody(AdminAttachPolicyFromPolicyClusterReq),
     require("./attach-policy-batch").default
+  )
+
+  policiesRouter.get(
+    "/users",
+    transformQuery(AdminGetPolicyClusterUserParams, {
+      defaultRelations: [],
+      isList: true,
+    }),
+    require("./get-policy-cluster-user").default
   )
 
   return app

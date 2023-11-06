@@ -9,6 +9,7 @@ import {
 } from "@medusajs/medusa"
 import { User } from "../models/user"
 import { FindManyOptions, FindOptionsWhere, ILike } from "typeorm"
+import { Equal } from "typeorm"
 
 type ListAndCountSelector = Selector<User> & {
   q?: string
@@ -57,6 +58,34 @@ export default class UserService extends MedusaUserService {
           email: ILike(`%${q}%`),
         },
       ]
+    }
+
+    // @ts-ignore
+    return await userRepository.findAndCount(query)
+  }
+
+  async listUsersOnPolicyCluster(
+    selector: ListAndCountSelector = {},
+    config: FindConfig<User> = { skip: 0, take: 20 },
+    policyClusterId: string
+  ): Promise<[User[], number]> {
+    const manager = this.manager_
+    const userRepository = manager.withRepository(this.userRepository_)
+
+    let q
+
+    if (isString(selector.q)) {
+      q = selector.q
+      delete selector.q
+    }
+
+    const query = buildQuery(selector, config) as FindManyOptions<User> & {
+      where: {}
+    } & ExtendedFindConfig<User>
+
+    query.where = {
+      ...query.where,
+      policy_cluster: Equal(policyClusterId),
     }
 
     // @ts-ignore

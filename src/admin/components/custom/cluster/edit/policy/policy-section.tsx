@@ -31,20 +31,19 @@ import {
   PolicyFilterMenu,
 } from "../../../policy/policy-filter-menu"
 import {
-  CurrencyDollar,
   EllipsisHorizontal,
   ExclamationCircle,
-  PencilSquare,
   Spinner,
-  Tag,
   Trash,
 } from "@medusajs/icons"
 import {
   useAdminPolicyClusterDeletePolicy,
   useAdminPolicyClusterPolicies,
 } from "../../../../hooks/cluster"
-import { getDateComparisonOperatorFromSearchParams } from "./getDateComparisonOperatorFromSearchParams"
-import {} from "medusa-react"
+import {
+  getDateComparisonOperatorFromSearchParams,
+  getStringFromSearchParams,
+} from "./getDateComparisonOperatorFromSearchParams"
 
 type PolicyClusterPolicySectionProps = {
   policyCluster: PolicyCluster
@@ -60,25 +59,19 @@ const PolicyClusterPolicySection = ({
 
   const navigate = useNavigate()
 
-  const [showAddProductsModal, setShowAddProductsModal] = React.useState(false)
-  const [showEditPricesModal, setShowEditPricesModal] = React.useState(false)
+  const [showAddPolicyModal, setShowAddPolicyModal] = React.useState(false)
+  const [showEditPolicyModal, setShowEditPolicyModal] = React.useState(false)
 
-  const [productIdsToEdit, setProductIdsToEdit] = React.useState<
-    string[] | null
-  >(null)
+  const [policyIdsToEdit, setPolicyIdsToEdit] = React.useState<string[] | null>(
+    null
+  )
 
-  /**
-   * Table state.
-   */
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
   })
 
-  /**
-   * Calculate the offset based on the pagination state.
-   */
   const offset = React.useMemo(
     () => pagination.pageIndex * pagination.pageSize,
     [pagination.pageIndex, pagination.pageSize]
@@ -115,14 +108,13 @@ const PolicyClusterPolicySection = ({
 
   const prompt = usePrompt()
 
-  const { mutate, isLoading: isDeletingProductPrices } =
+  const { mutate, isLoading: isDeletingPolicyFromCluster } =
     useAdminPolicyClusterDeletePolicy(policyCluster?.id)
 
-  const handleDeleteProductPrices = async () => {
+  const handleDeletePolicyFromCluster = async () => {
     const res = await prompt({
       title: "Are you sure?",
-      description:
-        "This will permanently delete the product prices from the list",
+      description: "This will permanently delete the policy from this cluster",
     })
 
     if (!res) {
@@ -145,38 +137,27 @@ const PolicyClusterPolicySection = ({
     )
   }
 
+  // TODO: Search doesn't work
   const { data, count, isLoading, isError } = useAdminPolicyClusterPolicies(
-    policyCluster.id
+    policyCluster.id,
+    {
+      limit: PAGE_SIZE,
+      offset,
+      created_at: getDateComparisonOperatorFromSearchParams(
+        "created_at",
+        searchParams
+      ),
+      updated_at: getDateComparisonOperatorFromSearchParams(
+        "updated_at",
+        searchParams
+      ),
+      q: getStringFromSearchParams("q", searchParams),
+    }
   )
 
-  const { data: allPolicy } = useAdminPolicyClusterPolicies(policyCluster.id)
-
-  const onEditPricesModalOpenChange = React.useCallback((open: boolean) => {
-    switch (open) {
-      case true:
-        setShowEditPricesModal(true)
-        break
-      case false:
-        setShowEditPricesModal(false)
-        setProductIdsToEdit(null)
-        setRowSelection({})
-        break
-    }
-  }, [])
-
-  const onEditAllProductPrices = React.useCallback(() => {
-    setProductIdsToEdit(data?.policy_cluster?.map((p) => p.id) as string[])
-    setShowEditPricesModal(true)
-  }, [allPolicy])
-
-  const onEditSelectedProductPrices = React.useCallback(() => {
-    setProductIdsToEdit(Object.keys(rowSelection))
-    setShowEditPricesModal(true)
-  }, [rowSelection])
-
-  const onEditSingleProductPrices = (id: string) => {
-    setProductIdsToEdit([id])
-    setShowEditPricesModal(true)
+  const onEditSinglePolicy = (id: string) => {
+    setPolicyIdsToEdit([id])
+    setShowEditPolicyModal(true)
   }
 
   const pageCount = React.useMemo(() => {
@@ -184,7 +165,7 @@ const PolicyClusterPolicySection = ({
   }, [count])
 
   const { columns } = usePolicyClusterPolicyColumns({
-    onEditProductPrices: onEditSingleProductPrices,
+    onEditPolicy: onEditSinglePolicy,
   })
 
   const table = useReactTable({
@@ -198,7 +179,7 @@ const PolicyClusterPolicySection = ({
       pagination,
     },
     meta: {
-      priceListId: policyCluster.id,
+      policyClusterPolicies: policyCluster.id,
     },
     pageCount,
     enableRowSelection: true,
@@ -210,7 +191,7 @@ const PolicyClusterPolicySection = ({
   return (
     <Container className="p-0">
       <div className="flex items-center justify-between px-8 pt-6 pb-4">
-        <Heading>{"Prices"}</Heading>
+        <Heading>{"Policy"}</Heading>
         <div className="flex items-center gap-x-2">
           <PolicyFilterMenu
             value={{
@@ -233,23 +214,6 @@ const PolicyClusterPolicySection = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <IconButton>
-                <EllipsisHorizontal />
-              </IconButton>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="end" side="bottom">
-              <DropdownMenu.Item onClick={onEditAllProductPrices}>
-                <CurrencyDollar className="text-ui-fg-subtle" />
-                <span className="ml-2">{"Edit prices"}</span>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setShowAddProductsModal(true)}>
-                <Tag className="text-ui-fg-subtle" />
-                <span className="ml-2">{"Add products"}</span>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu>
         </div>
       </div>
       <div
@@ -327,20 +291,6 @@ const PolicyClusterPolicySection = ({
         pageCount={pageCount}
         pageSize={pagination.pageSize}
       />
-      {/* <AddProductsModal
-        policyIds={(data?.policy_cluster?.map((p) => p.id) as string[]) ?? []}
-        // priceList={priceList}
-        open={showAddProductsModal}
-        onOpenChange={setShowAddProductsModal}
-      /> */}
-      {/* {productIdsToEdit && (
-        <EditPricesModal
-          open={showEditPricesModal}
-          onOpenChange={onEditPricesModalOpenChange}
-          productIds={productIdsToEdit}
-          priceList={priceList}
-        />
-      )} */}
       <CommandBar open={Object.keys(rowSelection).length > 0}>
         <CommandBar.Bar>
           <CommandBar.Value>
@@ -348,24 +298,13 @@ const PolicyClusterPolicySection = ({
           </CommandBar.Value>
           <CommandBar.Seperator />
           <CommandBar.Command
-            shortcut="e"
-            label={"Edit"}
-            action={onEditSelectedProductPrices}
-            disabled={
-              isDeletingProductPrices ||
-              showAddProductsModal ||
-              showEditPricesModal
-            }
-          />
-          <CommandBar.Seperator />
-          <CommandBar.Command
             shortcut="d"
             label={"Delete"}
-            action={handleDeleteProductPrices}
+            action={handleDeletePolicyFromCluster}
             disabled={
-              isDeletingProductPrices ||
-              showAddProductsModal ||
-              showEditPricesModal
+              isDeletingPolicyFromCluster ||
+              showAddPolicyModal ||
+              showEditPolicyModal
             }
           />
         </CommandBar.Bar>
@@ -376,13 +315,13 @@ const PolicyClusterPolicySection = ({
 
 const columnHelper = createColumnHelper<Policy>()
 
-type UsePriceListProudctColumnsProps = {
-  onEditProductPrices: (id: string) => void
+type UsePolicyClusterPolicyColumnProps = {
+  onEditPolicy: (id: string) => void
 }
 
 const usePolicyClusterPolicyColumns = ({
-  onEditProductPrices,
-}: UsePriceListProudctColumnsProps) => {
+  onEditPolicy: onEditPolicyCluster,
+}: UsePolicyClusterPolicyColumnProps) => {
   const columns = React.useMemo(
     () => [
       columnHelper.display({
@@ -421,14 +360,14 @@ const usePolicyClusterPolicyColumns = ({
       }),
 
       columnHelper.accessor("method", {
-        header: () => "method",
+        header: () => "Method",
         cell: (info) => {
           const variants = info.getValue()
           return variants ?? "-"
         },
       }),
       columnHelper.accessor("base_router", {
-        header: () => "base router",
+        header: () => "Base Router",
         cell: (info) => {
           const variants = info.getValue()
           return variants ?? "-"
@@ -438,21 +377,21 @@ const usePolicyClusterPolicyColumns = ({
       columnHelper.display({
         id: "actions",
         cell: ({ table, row }) => {
-          const { priceListId } = table.options.meta as {
-            priceListId: string | undefined
+          const { policyClusterPolicies } = table.options.meta as {
+            policyClusterPolicies: string | undefined
           }
 
           return (
             <PolicyClusterPolicyrowActions
               row={row}
-              priceListId={priceListId}
-              onEditProductPrices={onEditProductPrices}
+              policyClusterId={policyClusterPolicies}
+              onEditPolicy={onEditPolicyCluster}
             />
           )
         },
       }),
     ],
-    [onEditProductPrices]
+    [onEditPolicyCluster]
   )
 
   return { columns }
@@ -460,19 +399,17 @@ const usePolicyClusterPolicyColumns = ({
 
 type PolicyClusterPolicyRowActionsProps = {
   row: Row<Policy>
-  priceListId?: string
-  onEditProductPrices: (id: string) => void
+  policyClusterId?: string
+  onEditPolicy: (id: string) => void
 }
 
 const PolicyClusterPolicyrowActions = ({
   row,
-  priceListId,
-  onEditProductPrices,
+  policyClusterId,
+  onEditPolicy: onEditPolicy,
 }: PolicyClusterPolicyRowActionsProps) => {
-  //   const { mutateAsync } = useAdminDeletePriceListProductPrices(
-  //     priceListId!,
-  //     row.original.id
-  //   )
+  const { mutate, isLoading: isDeletingPolicyFromCluster } =
+    useAdminPolicyClusterDeletePolicy(policyClusterId)
 
   const prompt = usePrompt()
 
@@ -480,33 +417,29 @@ const PolicyClusterPolicyrowActions = ({
     const response = await prompt({
       title: "Are you sure?",
       description:
-        "This will permanently delete the product prices from the list",
+        "This will permanently delete the this policy from the cluster",
     })
 
     if (!response) {
       return
     }
 
-    // return mutateAsync(undefined, {
-    //   onSuccess: ({ deleted }) => {
-    //     if (deleted) {
-    //       // TODO: Notification
-    //     }
-
-    //     if (!deleted) {
-    //       // TODO: Notification
-    //     }
-    //   },
-    //   onError: (err) => {
-    //     // TODO: Notification
-    //   },
-    // })
+    mutate(
+      {
+        policy: [row.original.id],
+      },
+      {
+        onSuccess: () => {
+          // TODO: Notification
+        },
+        onError: (err) => {
+          // TODO: Notification
+        },
+      }
+    )
   }
 
-  const onEdit = () => {
-    onEditProductPrices(row.original.id)
-  }
-
+  // TODO: We should do a edit policy button later.
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -515,14 +448,10 @@ const PolicyClusterPolicyrowActions = ({
         </IconButton>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" side="bottom">
-        <DropdownMenu.Item onClick={onEdit}>
-          <PencilSquare className="text-ui-fg-subtle" />
-          <span className="ml-2">Edit prices</span>
-        </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={onDelete}>
           <Trash className="text-ui-fg-subtle" />
-          <span className="ml-2">Delete prices</span>
+          <span className="ml-2">Delete Policy</span>
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

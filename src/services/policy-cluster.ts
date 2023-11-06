@@ -237,9 +237,10 @@ export default class PolicyClusterService extends TransactionBaseService {
       this.policyClusterRepository_
     )
 
+    config.relations = []
     const query = buildQuery({ id: policyClusterId }, config)
 
-    const policyCluster = await policyClusterRepository.findOne(query)
+    const policyCluster = await policyClusterRepository.find(query)
 
     if (!policyCluster) {
       throw new MedusaError(

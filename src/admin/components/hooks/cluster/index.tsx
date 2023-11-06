@@ -142,11 +142,11 @@ export function useAdminPolicyCluster(id: string) {
   }
 }
 
-export function useAdminPolicyClusterPolicies(id: string) {
+export function useAdminPolicyClusterPolicies(id: string, queryObject: any) {
   const { data, isLoading, isError } = useAdminCustomQuery<
     AdminClusterQuery,
     AdminListPolicyClusterPolicy
-  >(`/policy-cluster/${id}/policy`, ["policy-cluster-single-policy", id])
+  >(`/policy-cluster/${id}/policy`, ["list-policy-of-id", id], queryObject)
 
   return {
     data,
@@ -162,6 +162,7 @@ export function useAdminPolicyClusterDeletePolicy(id: string) {
     AdminPolicyClusterPolicyDeleteBatchRes
   >(`/policy-cluster/${id}/policy/batch`, [
     "deleted-policy-cluster-policy-batch",
+    id,
   ])
 
   return {

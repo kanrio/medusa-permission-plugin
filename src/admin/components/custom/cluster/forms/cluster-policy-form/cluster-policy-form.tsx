@@ -20,10 +20,7 @@ import {
 import * as React from "react"
 import { ClusterPolicySchema } from "./types"
 import { NestedForm } from "../../../../shared/form/nested-form"
-import {
-  PolicyFilter,
-  PolicyFilterMenu,
-} from "../../../policy/policy-filter-menu"
+
 import { Form } from "../../../../shared/form"
 import { useDebounce } from "../../../../hooks/use-debounce"
 import { Policy, useAdminPolicy } from "../../../../hooks/policy"
@@ -177,11 +174,6 @@ const ClusterPolicyForm = ({ form, policies }: ClusterPolicyFormProp) => {
     [pagination.pageIndex, pagination.pageSize]
   )
 
-  const [filters, setFilters] = React.useState<PolicyFilter>({
-    created_at: undefined,
-    updated_at: undefined,
-  })
-
   const [query, setQuery] = React.useState<string>("")
   const debouncedQuery = useDebounce(query, 500)
 
@@ -189,7 +181,6 @@ const ClusterPolicyForm = ({ form, policies }: ClusterPolicyFormProp) => {
     limit: PAGE_SIZE,
     offset,
     q: debouncedQuery,
-    ...filters,
   })
 
   const pageCount = React.useMemo(() => {
@@ -267,16 +258,6 @@ const ClusterPolicyForm = ({ form, policies }: ClusterPolicyFormProp) => {
           )}
         </div>
         <div className={clx("flex items-center gap-x-2")}>
-          <PolicyFilterMenu
-            onClearFilters={() =>
-              setFilters({
-                created_at: undefined,
-                updated_at: undefined,
-              })
-            }
-            onFilterChange={setFilters}
-            value={filters}
-          />
           <Input
             type="search"
             placeholder={"Search" ?? undefined}

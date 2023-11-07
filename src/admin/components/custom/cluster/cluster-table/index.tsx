@@ -159,7 +159,12 @@ const PolicyClusterRow = ({ row, ...rest }) => {
   const { getActions } = usePolicyClusterActions(policyCluster)
 
   return (
-    <Table.Row color={"inherit"} actions={getActions()} {...rest}>
+    <Table.Row
+      color={"inherit"}
+      actions={getActions()}
+      linkTo={`/a/cluster/${policyCluster.id}`}
+      {...rest}
+    >
       {row.cells.map((cell, index) => {
         return (
           // eslint-disable-next-line react/jsx-key

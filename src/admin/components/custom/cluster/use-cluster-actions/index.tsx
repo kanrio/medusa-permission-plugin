@@ -1,10 +1,14 @@
-import { ActionType } from "../../../shared/actionables/"
-import { Cluster, useAdminPolicyClusterDelete } from "../../../hooks/cluster/"
+import { ActionType } from "../../../shared/actionables"
+import { Cluster, useAdminPolicyClusterDelete } from "../../../hooks/cluster"
 import useImperativeDialog from "../../../hooks/use-imperative-dialog"
+import { useNavigate } from "react-router-dom"
+import { Trash } from "@medusajs/icons"
+import EditIcon from "../../../../components/shared/icons/edit-icon"
 
 const usePolicyClusterActions = (policyCluster: Cluster) => {
   const dialog = useImperativeDialog()
   const deleteCluserPolicy = useAdminPolicyClusterDelete(policyCluster?.id)
+  const navigate = useNavigate()
 
   const handleDelete = async () => {
     const shouldDelete = await dialog({
@@ -19,10 +23,16 @@ const usePolicyClusterActions = (policyCluster: Cluster) => {
 
   const getActions = (): ActionType[] => [
     {
+      label: "Edit",
+      onClick: () => navigate(`/a/cluster/${policyCluster.id}`),
+      icon: <EditIcon size={20} />,
+    },
+    {
       label: "Delete",
       variant: "danger",
       onClick: handleDelete,
-      // FIXME: Icon is broken right now and I don't know why
+      icon: <Trash />,
+      // TODO: Notifications
     },
   ]
 

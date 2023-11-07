@@ -23,6 +23,9 @@ export type AdminPolicyClusterUserDeleteBatchRes = {
   deleted: boolean
 }
 
+type AdminPolicyClusterUserAttachBatchReq = AdminPolicyClusterUserDeleteBatchReq
+type AdminPolicyClusterUserAttachBatchRes = AdminPolicyClusterUserDeleteBatchRes
+
 export function useAdminPolicyClusterUsers(id: string, queryObject: any) {
   const { data, isLoading, isError } = useAdminCustomQuery<
     AdminClusterUserQuery,
@@ -47,6 +50,22 @@ export function useAdminPolicyClusterUsersDeleteBatch(id: string) {
     AdminPolicyClusterUserDeleteBatchRes
   >(`/policy-cluster/${id}/users/batch`, [
     "deleted-policy-cluster-policy-batch",
+    id,
+  ])
+
+  return {
+    mutate,
+    isLoading,
+    isError,
+  }
+}
+
+export function useAdminPolicyClusterAttachUsers(id: string) {
+  const { mutate, isLoading, isError } = useAdminCustomPost<
+    AdminPolicyClusterUserAttachBatchReq,
+    AdminPolicyClusterUserAttachBatchRes
+  >(`/policy-cluster/${id}/users/attach-batch`, [
+    "attach-batch-policy-cluster-policy-batch",
     id,
   ])
 

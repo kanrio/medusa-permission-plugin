@@ -104,6 +104,8 @@ export default class UserService extends MedusaUserService {
       )
     }
 
+    // TODO: It's slow to do this one by one
+    // We need to do this in a batch
     return await this.atomicPhase_(async (manager) => {
       const userRepository = manager.withRepository(this.userRepository_)
 
@@ -118,6 +120,40 @@ export default class UserService extends MedusaUserService {
 
         // @ts-ignore
         await userRepository.update(userId, { policy_cluster: null })
+      }
+
+      await this.eventBus_
+        .withTransaction(manager)
+        .emit(PolicyClusterService.Events.UPDATED, {})
+    })
+  }
+
+  async attachUserPolicyClusterRelations(
+    userIds: string[],
+    policyClusterId: string
+  ) {
+    if (!isDefined(policyClusterId)) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `"policyClusterId" must be defined`
+      )
+    }
+    // TODO: Check if it's valid or not
+
+    // TODO: It's slow to do this one by one
+    // We need to do this in a batch
+    return await this.atomicPhase_(async (manager) => {
+      const userRepository = manager.withRepository(this.userRepository_)
+
+      for (const userId of userIds) {
+        const user = await userRepository.findOne({ where: { id: userId } })
+
+        if (!user) {
+          throw new MedusaError(MedusaError.Types.NOT_FOUND, `User not found`)
+        }
+
+        // @ts-ignore
+        await userRepository.update(userId, { policy_cluster: policyClusterId })
       }
 
       await this.eventBus_

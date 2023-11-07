@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   Heading,
   IconButton,
-  Input,
   usePrompt,
   Text,
   Table,
@@ -164,13 +163,6 @@ const PolicyClusterPolicySection = ({
       <div className="flex items-center justify-between px-8 pt-6 pb-4">
         <Heading>{"Policy"}</Heading>
         <div className="flex items-center gap-x-2">
-          <Input
-            type="search"
-            size="small"
-            placeholder={"Search policies"}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
           <DropdownMenu>
             <DropdownMenu.Trigger asChild>
               <IconButton>

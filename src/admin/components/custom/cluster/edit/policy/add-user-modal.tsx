@@ -1,10 +1,11 @@
 import { PolicyCluster } from "../../../../../../models/policy-cluster"
+import { User } from "../../../../../../models/user"
+import * as React from "react"
 import * as z from "zod"
 import {
-  clusterPolicySchema,
-  ClusterPolicyForm,
-} from "../../forms/cluster-policy-form"
-import * as React from "react"
+  clusterUsersSchema,
+  ClusterUsersForm,
+} from "../../forms/cluster-users-form"
 import {
   Button,
   FocusModal,
@@ -12,46 +13,45 @@ import {
   ProgressTabs,
   usePrompt,
 } from "@medusajs/ui"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Policy } from "../../../../../../models/policy"
+import { useAdminPolicyClusterAttachUsers } from "../../../../hooks/user"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Form } from "../../../../shared/form/index"
 import { nestedForm } from "../../../../shared/form/nested-form"
-import { useAdminPolicyClusterAttachPolicy } from "../../../../hooks/cluster"
 
-type AddPolicyModalProps = {
+type AddUsersModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   policyCluster: PolicyCluster
-  policyIds: string[]
+  userIds: string[]
 }
 
 enum Tab {
-  POLICY = "policy",
+  USERS = "users",
 }
 
-const addPolicySchema = z.object({
-  policy: clusterPolicySchema,
+const addUsersSchema = z.object({
+  users: clusterUsersSchema,
 })
 
-type AddPolicyFormValue = z.infer<typeof addPolicySchema>
+type AddUsersFormValue = z.infer<typeof addUsersSchema>
 
 type StepStatus = {
   [key in Tab]: ProgressStatus
 }
 
-const AddPolicyModal = ({
+const AddUserModal = ({
   open,
   onOpenChange,
   policyCluster,
-  policyIds,
-}: AddPolicyModalProps) => {
-  const [policy, setPolicy] = React.useState<Policy | null>(null)
+  userIds,
+}: AddUsersModalProps) => {
+  const [user, setUser] = React.useState<User | null>(null)
   const [selectedIds, setSelectedIds] = React.useState<string[]>([])
 
-  const [tab, setTab] = React.useState<Tab>(Tab.POLICY)
+  const [tab, setTab] = React.useState<Tab>(Tab.USERS)
   const [status, setStatus] = React.useState<StepStatus>({
-    [Tab.POLICY]: "not-started",
+    [Tab.USERS]: "not-started",
   })
 
   const promptTitle = "Are you sure?"
@@ -62,14 +62,14 @@ const AddPolicyModal = ({
 
   const prompt = usePrompt()
 
-  const { mutate, isLoading: isSubmitting } = useAdminPolicyClusterAttachPolicy(
+  const { mutate, isLoading: isSubmitting } = useAdminPolicyClusterAttachUsers(
     policyCluster.id
   )
 
-  const form = useForm<AddPolicyFormValue>({
-    resolver: zodResolver(addPolicySchema),
+  const form = useForm<AddUsersFormValue>({
+    resolver: zodResolver(addUsersSchema),
     defaultValues: {
-      policy: { ids: [] },
+      users: { ids: [] },
     },
   })
 
@@ -85,14 +85,14 @@ const AddPolicyModal = ({
 
   const onCloseModal = React.useCallback(() => {
     onOpenChange(false)
-    setTab(Tab.POLICY)
+    setTab(Tab.USERS)
     setSelectedIds([])
     setStatus({
-      [Tab.POLICY]: "not-started",
+      [Tab.USERS]: "not-started",
     })
 
     reset({
-      policy: { ids: [] },
+      users: { ids: [] },
     })
   }, [onOpenChange, reset])
 
@@ -124,14 +124,14 @@ const AddPolicyModal = ({
     ]
   )
 
-  const onSetPolicy = React.useCallback(
-    (policy: Policy | null) => {
-      if (!policy) {
-        setPolicy(null)
-        setTab(Tab.POLICY)
+  const onSetUser = React.useCallback(
+    (user: User | null) => {
+      if (!user) {
+        setUser(null)
+        setTab(Tab.USERS)
         return
       }
-      setPolicy(policy)
+      setUser(user)
     },
     [getValues]
   )
@@ -142,8 +142,7 @@ const AddPolicyModal = ({
     },
     [tab]
   )
-
-  const onUpdateSelectedPolicyIds = React.useCallback(
+  const onUpdateSelectedUserIds = React.useCallback(
     (ids: string[]) => {
       setSelectedIds((prev) => {
         for (const id of prev) {
@@ -158,32 +157,32 @@ const AddPolicyModal = ({
     [setValue]
   )
 
-  const onValidateProducts = React.useCallback(async () => {
-    const result = await trigger("policy")
+  const onValidateUsers = React.useCallback(async () => {
+    const result = await trigger("users")
 
     if (!result) {
       setStatus((prev) => ({
         ...prev,
-        [Tab.POLICY]: "in-progress",
+        [Tab.USERS]: "in-progress",
       }))
       return
     }
 
-    const ids = getValues("policy.ids")
+    const ids = getValues("users.ids")
 
-    onUpdateSelectedPolicyIds(ids)
+    onUpdateSelectedUserIds(ids)
 
     setStatus((prev) => ({
       ...prev,
-      [Tab.POLICY]: "completed",
+      [Tab.USERS]: "completed",
     }))
-  }, [trigger, getValues, onUpdateSelectedPolicyIds])
+  }, [trigger, getValues, onUpdateSelectedUserIds])
 
   const onSubmit = handleSubmit(async (data) => {
-    const policyIds = data.policy.ids
+    const policyIds = data.users.ids
 
     mutate(
-      { policy: policyIds },
+      { users: policyIds },
       {
         onSuccess: () => {
           // TODO: Notification
@@ -195,9 +194,10 @@ const AddPolicyModal = ({
       }
     )
   })
+
   const onBack = React.useCallback(async () => {
     switch (tab) {
-      case Tab.POLICY:
+      case Tab.USERS:
         onModalStateChange(false)
         break
     }
@@ -205,7 +205,7 @@ const AddPolicyModal = ({
 
   const backButtonText = React.useMemo(() => {
     switch (tab) {
-      case Tab.POLICY:
+      case Tab.USERS:
         return "Cancel"
       default:
         return "Back"
@@ -214,16 +214,16 @@ const AddPolicyModal = ({
 
   const onNext = React.useCallback(async () => {
     switch (tab) {
-      case Tab.POLICY:
-        onValidateProducts()
+      case Tab.USERS:
+        onValidateUsers()
         await onSubmit()
         break
     }
-  }, [onValidateProducts, tab])
+  }, [onValidateUsers, tab])
 
   const nextButtonText = React.useMemo(() => {
     switch (tab) {
-      case Tab.POLICY:
+      case Tab.USERS:
         return "Attach Policy"
     }
   }, [tab])
@@ -238,12 +238,12 @@ const AddPolicyModal = ({
           <FocusModal.Header className="flex w-full items-center justify-between">
             <ProgressTabs.List className="border-ui-border-base -my-2 ml-2 min-w-0 flex-1 border-l">
               <ProgressTabs.Trigger
-                value={Tab.POLICY}
+                value={Tab.USERS}
                 className="w-full max-w-[200px]"
-                status={status[Tab.POLICY]}
+                status={status[Tab.USERS]}
               >
                 <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {"Choose Policies"}
+                  {"Choose Users"}
                 </span>
               </ProgressTabs.Trigger>
             </ProgressTabs.List>
@@ -267,13 +267,10 @@ const AddPolicyModal = ({
           </FocusModal.Header>
           <FocusModal.Body className="flex h-full w-full flex-col items-center overflow-y-auto">
             <Form {...form}>
-              <ProgressTabs.Content
-                value={Tab.POLICY}
-                className="h-full w-full"
-              >
-                <ClusterPolicyForm
-                  form={nestedForm(form, "policy")}
-                  policies={policyIds}
+              <ProgressTabs.Content value={Tab.USERS} className="h-full w-full">
+                <ClusterUsersForm
+                  form={nestedForm(form, "users")}
+                  userIds={userIds}
                 />
               </ProgressTabs.Content>
             </Form>
@@ -284,4 +281,4 @@ const AddPolicyModal = ({
   )
 }
 
-export { AddPolicyModal }
+export { AddUserModal }

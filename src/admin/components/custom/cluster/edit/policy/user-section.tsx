@@ -33,9 +33,10 @@ import {
   EllipsisHorizontal,
   ExclamationCircle,
   Spinner,
-  Tag,
+  User as UserIcon,
   Trash,
 } from "@medusajs/icons"
+import { AddUserModal } from "./add-user-modal"
 
 type PolicyClusterUserSectionProps = {
   policyCluster: PolicyCluster
@@ -106,6 +107,15 @@ const PolicyClusterUserSection = ({
     }
   )
 
+  const {
+    data: allUsers,
+    isLoading: isLoadingAll,
+    isError: isErrorAll,
+  } = useAdminPolicyClusterUsers(policyCluster.id, {
+    limit: 99999, // FIXME: This is a hack to get all policies
+    offset,
+  })
+
   const onEditSingleUser = (id: string) => {
     setUserIdsToEdit([id])
     setShowEditUserModal(true)
@@ -152,8 +162,8 @@ const PolicyClusterUserSection = ({
             </DropdownMenu.Trigger>
             <DropdownMenu.Content align="end" side="bottom">
               <DropdownMenu.Item onClick={() => setShowAddUserModal(true)}>
-                <Tag className="text-ui-fg-subtle" />
-                <span className="ml-2">{"Add Policy"}</span>
+                <UserIcon className="text-ui-fg-subtle" />
+                <span className="ml-2">{"Add Users"}</span>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu>
@@ -233,6 +243,12 @@ const PolicyClusterUserSection = ({
         pageIndex={pagination.pageIndex}
         pageCount={pageCount}
         pageSize={pagination.pageSize}
+      />
+      <AddUserModal
+        userIds={(allUsers?.users?.map((p) => p.id) as string[]) ?? []}
+        policyCluster={policyCluster}
+        open={showAddUserModal}
+        onOpenChange={setShowAddUserModal}
       />
     </Container>
   )
@@ -372,7 +388,7 @@ const PolicyClusterUserRowActions = ({
     )
   }
 
-  // TODO: We should do a edit policy button later.
+  // TODO: We should do a edit user button later.
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>

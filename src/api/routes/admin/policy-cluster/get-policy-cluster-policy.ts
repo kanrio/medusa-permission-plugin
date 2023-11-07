@@ -32,7 +32,7 @@ export default async (req: Request, res: Response) => {
 }
 
 // eslint-disable-next-line max-len
-export class AdminGetPolicyClusterParams {
+export class AdminGetPolicyClusterPolicyParams {
   @IsOptional()
   @IsString()
   name?: string

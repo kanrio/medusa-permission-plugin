@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 import { useAdminPolicyCluster } from "../../../hooks/cluster"
 import { PolicyClusterDetailsSection } from "./details/details-section"
 import { PolicyClusterPolicySection } from "./policy/policy-section"
+import { PolicyClusterUserSection } from "./policy/user-section"
 
 const PolicyClusterEdit = () => {
   const { id } = useParams<{ id: string }>()
@@ -41,10 +42,8 @@ const PolicyClusterEdit = () => {
           // @ts-ignore
           policyCluster={data?.policy_cluster}
         />
-        {/* <PriceListPricesSection
-          key={`${price_list.updated_at}`}
-          priceList={price_list}
-        /> */}
+        {/* Spacer */}
+        <div className="h-xlarge w-full" />
         <PolicyClusterPolicySection
           key={`${data?.policy_cluster.updated_at}`}
           // @ts-ignore
@@ -52,6 +51,11 @@ const PolicyClusterEdit = () => {
         ></PolicyClusterPolicySection>
         {/* Spacer */}
         <div className="h-xlarge w-full" />
+        <PolicyClusterUserSection
+          key={`${data?.policy_cluster.updated_at}`}
+          // @ts-ignore
+          policyCluster={data?.policy_cluster}
+        />
       </div>
     </>
   )

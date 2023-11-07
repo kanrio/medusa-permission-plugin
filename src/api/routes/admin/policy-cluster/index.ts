@@ -7,6 +7,7 @@ import { AdminPolicyClusterReq } from "./create-policy-cluster"
 import { AdminDeletePolicyFromPolicyClusterReq } from "./delete-policy-batch"
 import { AdminAttachPolicyFromPolicyClusterReq } from "./attach-policy-batch"
 import { AdminGetPolicyClusterUserParams } from "./get-policy-cluster-user"
+import { AdminDeleteUserFromPolicyClusterReq } from "./delete-user-batch"
 
 export default (app) => {
   const route = Router()
@@ -68,6 +69,12 @@ export default (app) => {
       isList: true,
     }),
     require("./get-policy-cluster-user").default
+  )
+
+  policiesRouter.post(
+    "/users/batch",
+    transformBody(AdminDeleteUserFromPolicyClusterReq),
+    require("./delete-user-batch").default
   )
 
   return app

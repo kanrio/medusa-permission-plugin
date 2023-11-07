@@ -81,7 +81,7 @@ export const PolicyClusterDetailsSection = ({
         <div className="small:grid-cols-2 medium:grid-cols-3 grid grid-cols-1 gap-6">
           <div className="border-ui-border-base flex flex-col gap-y-1 border-l px-4">
             <Text size="base" className="text-ui-fg-subtle">
-              {"Last edited"}
+              {"Last Edited"}
             </Text>
             <Text size="large">
               {format(new Date(policyCluster?.updated_at), "EEE d, MMM yyyy")}
